@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f3580264c6631df4d851932bf91a83a2, type: 3}
+  m_Name: Tokens
+  m_EditorClassIdentifier: Assembly-CSharp:AllArt.Solana.Example:Tokens
+  knownTokens:
+  - name: Gold coins
+    logo: {fileID: 21300000, guid: 34c95eaac0002654280ecbaf3ad6427c, type: 3}
+    mint: 8b5HQskPYkbJ7RU3qG2e4okYEDvT2xvEK4GQHyJoohh1
