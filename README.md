@@ -41,7 +41,13 @@ Solnet is Solana's .NET SDK to integrate with the .NET ecosystem.  [Solnet](http
 - Themed UI support
 - Metaplex auctions for in-game store items
 
+## Installation
 
+1. Clone this repository outside of the main Unity project
+2. Go to Package Manager in your project
+3. Click on the plus in the top left corner and select "Add package from disk"
+4. Select package.json file from a cloned dir
+5. Once the package is installed, in the Package Manager inspector you will have Samples. Click on Import
 
 
 ## License
