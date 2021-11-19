@@ -8,6 +8,6 @@
        	{
             "displayName": "Simple Wallet",
             "description": "Contains simple implementation of Unity Solana Wallet",
-            "path": "Samples~/SimpleWallet"
+            "path": "Samples/SimpleWallet"
         }]
 }

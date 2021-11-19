@@ -1,9 +1,10 @@
 ﻿using Solnet.Rpc.Models;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using TMPro;
+using UnityEngine;
 using UnityEngine.UI;
-using ZXing;
-using ZXing.QrCode;
 
 namespace AllArt.Solana.Example
 {
@@ -18,6 +19,8 @@ namespace AllArt.Solana.Example
         public List<TokenItem> token_items;
 
         public KnownTokens knownTokens;
+
+        CancellationTokenSource stopTask;
 
         void Start()
         {
@@ -42,6 +45,8 @@ namespace AllArt.Solana.Example
                 SimpleWallet.instance.DeleteWalletAndClearKey();
                 manager.ShowScreen(this, "generate_screen");
             });
+
+            stopTask = new CancellationTokenSource();
         }
 
         private void TransitionToTransfer(object data = null)
@@ -74,19 +79,34 @@ namespace AllArt.Solana.Example
         {
             DisableTokenItems();
             TokenAccount[] result = await SimpleWallet.instance.GetOwnedTokenAccounts(SimpleWallet.instance.wallet.GetAccount(0));
-            
+
             if (result != null && result.Length > 0)
             {
                 int itemIndex = 0;
                 foreach (TokenAccount item in result)
                 {
-                    KnownToken known = knownTokens.GetKnownToken(item.Account.Data.Parsed.Info.Mint);
+                    if (int.Parse(item.Account.Data.Parsed.Info.TokenAmount.Amount) > 0)
+                    {
+                        Nft.Nft nft = await Nft.Nft.TryGetNftData(item.Account.Data.Parsed.Info.Mint, SimpleWallet.instance.activeRpcClient, false);
 
-                    token_items[itemIndex].gameObject.SetActive(true);
-                    token_items[itemIndex].InitializeData(item, this, known);
-                    itemIndex++;
+                        //Task<AllArt.Solana.Nft.Nft> t = Task.Run<AllArt.Solana.Nft.Nft>( async () => {
+                        //    return await AllArt.Solana.Nft.Nft.TryGetNftData(item.Account.Data.Parsed.Info.Mint, SimpleWallet.instance.activeRpcClient, false);
+                        //}, stopTask.Token);
+
+                        //Debug.Log("new");
+                        //AllArt.Solana.Nft.Nft nft = t.Result;
+
+                        token_items[itemIndex].gameObject.SetActive(true);
+                        token_items[itemIndex].InitializeData(item, this, nft);
+                        itemIndex++;
+                    }
                 }
-            }            
+            }
+        }
+
+        private void OnDestroy()
+        {
+            stopTask.Cancel();
         }
 
         void DisableTokenItems()

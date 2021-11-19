@@ -1,22 +1,19 @@
-using System.Collections;
-using System.Collections.Generic;
-using TMPro;
-using UnityEngine;
-using UnityEngine.UI;
-
-using AllArt.Solana;
-using Solnet.Rpc.Models;
 using Solnet.Rpc.Core.Http;
+using Solnet.Rpc.Models;
+using TMPro;
+using UnityEngine.UI;
 
 namespace AllArt.Solana.Example
 {
     public class TransferScreen : Screen
     {
         public TextMeshProUGUI ownedAmmount_txt;
+        public TextMeshProUGUI nftTitle_txt;
         public TextMeshProUGUI error_txt;
         public TMP_InputField toPublic_txt;
         public TMP_InputField ammount_txt;
         public Button transfer_btn;
+        public RawImage nftImage;
 
         public Button close_btn;
 
@@ -25,7 +22,6 @@ namespace AllArt.Solana.Example
 
         private void Start()
         {
-            //toPublic_txt.text = "FEbviHLML4a98Y4iDCAS9aEbBqgdNS6DTP4soRipDGQc";
             transfer_btn.onClick.AddListener(() =>
             {
                 TryTransfer();
@@ -33,7 +29,7 @@ namespace AllArt.Solana.Example
 
             close_btn.onClick.AddListener(() =>
             {
-               manager.ShowScreen(this, "wallet_screen");
+                manager.ShowScreen(this, "wallet_screen");
             });
         }
 
@@ -57,7 +53,8 @@ namespace AllArt.Solana.Example
             HandleResponse(result);
         }
 
-        bool CheckInput() {
+        bool CheckInput()
+        {
             if (string.IsNullOrEmpty(ammount_txt.text))
             {
                 error_txt.text = "Please input transfer ammount";
@@ -78,7 +75,8 @@ namespace AllArt.Solana.Example
                     return false;
                 }
             }
-            else {
+            else
+            {
                 if (long.Parse(ammount_txt.text) > long.Parse(ownedAmmount_txt.text))
                 {
                     error_txt.text = "Not enough funds for transaction.";
@@ -122,10 +120,21 @@ namespace AllArt.Solana.Example
 
         private async System.Threading.Tasks.Task PopulateInfoFileds(object data)
         {
+            nftImage.gameObject.SetActive(false);
+            nftTitle_txt.gameObject.SetActive(false);
+            ownedAmmount_txt.gameObject.SetActive(false);
             if (data != null && data.GetType().Equals(typeof(TokenAccount)))
             {
                 this.transferTokenAccount = (TokenAccount)data;
                 ownedAmmount_txt.text = $"{transferTokenAccount.Account.Data.Parsed.Info.TokenAmount.Amount}";
+            }
+            else if (data != null && data.GetType().Equals(typeof(Nft.Nft)))
+            {
+                nftTitle_txt.gameObject.SetActive(true);
+                nftImage.gameObject.SetActive(true);
+                Nft.Nft nft = (Nft.Nft)data;
+                nftTitle_txt.text = $"{nft.metaplexData.data.name}";
+                nftImage.texture = nft.metaplexData.nftImage.file;
             }
             else
             {

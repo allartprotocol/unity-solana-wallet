@@ -22,7 +22,7 @@ namespace AllArt.Solana
         public static string mainNetAdress = "https://api.mainnet.solana.com";
 
         public string customUrl = "http://192.168.0.22:8899";
-
+        
         public enum EClientUrlSource
         {
             EDevnet,

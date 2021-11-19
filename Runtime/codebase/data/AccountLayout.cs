@@ -1,5 +1,6 @@
 using System;
-
+using UnityEngine;
+using AllArt.Solana.Utility;
 
 namespace AllArt.Solana
 {
@@ -12,8 +13,7 @@ namespace AllArt.Solana
 
         public static AccountLayout DeserializeAccountLayout(string base64)
         {
-            byte[] data = Convert.FromBase64String(base64);
-
+            byte[] data = Convert.FromBase64String(base64);            
             AccountLayout accountLayoutData = new AccountLayout();
 
             ObjectToByte.DecodeBase58StringFromByte(data, 0, 32, out accountLayoutData.mint);
