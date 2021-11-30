@@ -73,9 +73,10 @@ namespace AllArt.Solana
 
         public static bool CheckMnemonicValidity(string mnemonic)
         {
-            if (mnemonic.Split(' ').Length < 24)
-                return false;
-            return true;
+            string[] mnemonicWords = mnemonic.Split(' ');
+            if (mnemonicWords.Length == 12 || mnemonicWords.Length == 24)
+                return true;
+            return false;
         }
 
         public static void SaveKeyPair(Keypair keypair)
