@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 namespace AllArt.Solana.Example
 {
-    public class TransferScreen : Screen
+    public class TransferScreen : SimpleScreen
     {
         public TextMeshProUGUI ownedAmmount_txt;
         public TextMeshProUGUI nftTitle_txt;

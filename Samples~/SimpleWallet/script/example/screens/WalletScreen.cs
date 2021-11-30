@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 namespace AllArt.Solana.Example
 {
-    public class WalletScreen : Screen
+    public class WalletScreen : SimpleScreen
     {
         public TextMeshProUGUI lamports;
         public Button refresh_btn;

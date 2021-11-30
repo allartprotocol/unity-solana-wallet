@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace AllArt.Solana
+namespace AllArt.Solana.Example
 {
     public class TokenItem : MonoBehaviour
     {
@@ -16,7 +16,7 @@ namespace AllArt.Solana
 
         TokenAccount tokenAccount;
         Nft.Nft nft;
-        Screen parentScreen;
+        SimpleScreen parentScreen;
 
         private void Start()
         {
@@ -28,7 +28,7 @@ namespace AllArt.Solana
             });
         }
 
-        public void InitializeData(TokenAccount tokenAccount, Screen screen, AllArt.Solana.Nft.Nft nftData = null)
+        public void InitializeData(TokenAccount tokenAccount, SimpleScreen screen, AllArt.Solana.Nft.Nft nftData = null)
         {
             parentScreen = screen;
             this.tokenAccount = tokenAccount;

@@ -1,50 +1,54 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SimpleScreenManager : MonoBehaviour
+namespace AllArt.Solana.Example
 {
-    public Screen[] screens;
-    private Dictionary<string, Screen> screensDict = new Dictionary<string, Screen>();
-
-    private void Start()
+    public class SimpleScreenManager : MonoBehaviour
     {
-        PopulateDictionary();
-    }
+        public SimpleScreen[] screens;
+        private Dictionary<string, SimpleScreen> screensDict = new Dictionary<string, SimpleScreen>();
 
-    private void PopulateDictionary()
-    {
-        if (screens != null && screens.Length > 0)
+        private void Start()
         {
-            foreach (Screen screen in screens)
+            PopulateDictionary();
+        }
+
+        private void PopulateDictionary()
+        {
+            if (screens != null && screens.Length > 0)
             {
-                SetupScreen(screen);
+                foreach (SimpleScreen screen in screens)
+                {
+                    SetupScreen(screen);
+                }
+                screens[0].gameObject.SetActive(true);
             }
-            screens[0].gameObject.SetActive(true);
+        }
+
+        private void SetupScreen(SimpleScreen screen)
+        {
+            screen.gameObject.SetActive(false);
+            screensDict.Add(screen.gameObject.name, screen);
+            screen.manager = this;
+        }
+
+        public void ShowScreen(SimpleScreen curScreen, SimpleScreen screen)
+        {
+            curScreen.HideScreen();
+            screen.ShowScreen();
+        }
+
+        public void ShowScreen(SimpleScreen curScreen, int index)
+        {
+            curScreen.HideScreen();
+            screens[index].ShowScreen();
+        }
+
+        public void ShowScreen(SimpleScreen curScreen, string name, object data = null)
+        {
+            curScreen.HideScreen();
+            screensDict[name].ShowScreen(data);
         }
     }
 
-    private void SetupScreen(Screen screen)
-    {
-        screen.gameObject.SetActive(false);
-        screensDict.Add(screen.gameObject.name, screen);
-        screen.manager = this;
-    }
-
-    public void ShowScreen(Screen curScreen, Screen screen)
-    {
-        curScreen.HideScreen();
-        screen.ShowScreen();
-    }
-
-    public void ShowScreen(Screen curScreen, int index)
-    {
-        curScreen.HideScreen();
-        screens[index].ShowScreen();
-    }
-
-    public void ShowScreen(Screen curScreen, string name, object data = null)
-    {
-        curScreen.HideScreen();
-        screensDict[name].ShowScreen(data);
-    }
 }

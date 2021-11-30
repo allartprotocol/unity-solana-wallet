@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 namespace AllArt.Solana.Example
 {
-    public class GenerateAccountScreen : Screen
+    public class GenerateAccountScreen : SimpleScreen
     {
         public TextMeshProUGUI mnemonic_txt;
         public Button generate_btn;
