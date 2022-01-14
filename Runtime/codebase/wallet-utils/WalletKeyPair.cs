@@ -1,6 +1,6 @@
-﻿
-using Solnet.Wallet;
+﻿using Solnet.Wallet;
 using System;
+using dotnetstandard_bip39;
 
 namespace AllArt.Solana
 {
@@ -31,8 +31,9 @@ namespace AllArt.Solana
 
         public static string GenerateNewMnemonic()
         {
-            dotnetstandard_bip39.BIP39 p = new dotnetstandard_bip39.BIP39();
-            string mnemonic = p.GenerateMnemonic(256, dotnetstandard_bip39.BIP39Wordlist.English);
+            //dotnetstandard_bip39.BIP39 p = new BIP39()
+            BIP p = new BIP();
+            string mnemonic = p.GenerateMnemonic(256, BIP39Wordlist.English);
             return mnemonic;
         }
 
@@ -44,7 +45,7 @@ namespace AllArt.Solana
         public static string MnemonicToSeedHex(string seed)
         {
 
-            dotnetstandard_bip39.BIP39 p = new dotnetstandard_bip39.BIP39();
+            BIP39 p = new BIP39();
             return p.MnemonicToSeedHex(seed, string.Empty);
         }
 
@@ -77,6 +78,14 @@ namespace AllArt.Solana
             if (mnemonicWords.Length == 12 || mnemonicWords.Length == 24)
                 return true;
             return false;
+        }
+
+        public static bool CheckPasswordValidity(string password)
+        {
+            if (!string.IsNullOrEmpty(password))
+                return true;
+            else
+                return false;
         }
 
         public static void SaveKeyPair(Keypair keypair)

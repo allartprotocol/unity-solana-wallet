@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace AllArt.Solana
 {
@@ -19,7 +20,15 @@ namespace AllArt.Solana
         #region Connections
         public static string devNetAdress = "https://api.devnet.solana.com";
         public static string testNetAdress = "https://api.testnet.solana.com";
-        public static string mainNetAdress = "https://api.mainnet.solana.com";
+        public static string mainNetAdress = "https://api.mainnet-beta.solana.com";
+
+        public static string webSocketDevNetAdress = "ws://api.devnet.solana.com";
+        public static string webSocketTestNetAdress = "ws://api.testnet.solana.com";
+        public static string webSocketMainNetAdress = "ws://api.mainnet-beta.solana.com";
+
+        private string mnemonicsKey = "Mnemonics";
+        private string passwordKey = "Password";
+        private string encryptedMnemonicsKey = "EncryptedMnemonics";
 
         public string customUrl = "http://192.168.0.22:8899";
         
@@ -36,15 +45,26 @@ namespace AllArt.Solana
 
         public SolanaRpcClient activeRpcClient { get; private set; }
 
+        
         public virtual void Awake()
         {
+            webSocketService = new WebSocketService();
+            cypher = new Cypher();
+
             if (autoConnectOnStartup)
             {
                 StartConnection(clientSource);
+                webSocketService.StartConnection(GetWebsocketConnectionURL(clientSource));
             }
+            //password = LoadPlayerPrefs(passwordKey);
         }
 
-        string GetConnectionURL(EClientUrlSource clientUrlSource)
+        public void OnDestroy()
+        {
+            webSocketService.CloseConnection();
+        }
+
+        public string GetConnectionURL(EClientUrlSource clientUrlSource)
         {
             string url = "";
             switch (clientUrlSource)
@@ -65,28 +85,60 @@ namespace AllArt.Solana
             return url;
         }
 
-        #endregion
+        public string GetWebsocketConnectionURL(EClientUrlSource clientUrlSource)
+        {
+            string url = "";
+            switch (clientUrlSource)
+            {
+                case EClientUrlSource.ECustom:
+                    url = customUrl;
+                    break;
+                case EClientUrlSource.EDevnet:
+                    url = webSocketDevNetAdress;
+                    break;
+                case EClientUrlSource.EMainnet:
+                    url = webSocketMainNetAdress;
+                    break;
+                case EClientUrlSource.ETestnet:
+                    url = webSocketTestNetAdress;
+                    break;
+            }
+            return url;
+        }
 
+        #endregion
         public Wallet wallet { get; set; }
         public string mnemonics { get; private set; }
+        public string password { get; private set; }
+
+        [HideInInspector]
+        public WebSocketService webSocketService;
+        private Cypher cypher;
 
         public async void CreateAccount(Account account, string toPublicKey = "", long ammount = 1000)
         {
-            Keypair keypair = WalletKeyPair.GenerateKeyPairFromMnemonic(WalletKeyPair.GenerateNewMnemonic());
+            try
+            {
+                Keypair keypair = WalletKeyPair.GenerateKeyPairFromMnemonic(WalletKeyPair.GenerateNewMnemonic());
 
-            toPublicKey = keypair.publicKey;
+                toPublicKey = keypair.publicKey;
 
-            RequestResult<ResponseValue<BlockHash>> blockHash = await activeRpcClient.GetRecentBlockHashAsync();
+                RequestResult<ResponseValue<BlockHash>> blockHash = await activeRpcClient.GetRecentBlockHashAsync();
 
-            var transaction = new TransactionBuilder().SetRecentBlockHash(blockHash.Result.Value.Blockhash).
-                AddInstruction(SystemProgram.CreateAccount(account.GetPublicKey, toPublicKey, ammount,
-                (long)SystemProgram.AccountDataSize, SystemProgram.ProgramId))
-                .Build(new List<Account>() {
+                var transaction = new TransactionBuilder().SetRecentBlockHash(blockHash.Result.Value.Blockhash).
+                    AddInstruction(SystemProgram.CreateAccount(account.GetPublicKey, toPublicKey, ammount,
+                    (long)SystemProgram.AccountDataSize, SystemProgram.ProgramId))
+                    .Build(new List<Account>() {
                     account,
                     new Account(keypair.privateKeyByte, keypair.publicKeyByte)
-                });
+                    });
 
-            RequestResult<string> firstSig = await activeRpcClient.SendTransactionAsync(Convert.ToBase64String(transaction));
+                RequestResult<string> firstSig = await activeRpcClient.SendTransactionAsync(Convert.ToBase64String(transaction));
+            }
+            catch(Exception ex)
+            {
+                Debug.Log(ex);
+            }
         }
 
         public async Task<AccountInfo> GetAccountData(Account account)
@@ -146,41 +198,85 @@ namespace AllArt.Solana
             if (!string.IsNullOrEmpty(customUrl))
                 this.customUrl = customUrl;
 
-            if (activeRpcClient == null)
+            try
             {
-                activeRpcClient = new SolanaRpcClient(GetConnectionURL(clientUrlSource));
-            }
+                if (activeRpcClient == null)
+                {
+                    activeRpcClient = new SolanaRpcClient(GetConnectionURL(clientUrlSource));
+                }
 
-            return activeRpcClient;
+                return activeRpcClient;
+            }
+            catch(Exception ex)
+            {
+                return null;
+            }
         }
 
         public Wallet GenerateWalletWithMenmonic(string mnemonics)
         {
-            string mnem = mnemonics;
-            if (!WalletKeyPair.CheckMnemonicValidity(mnem))
-            { 
-                return null;
-                throw new Exception("Mnemonic is in incorect format");
+            password = LoadPlayerPrefs(passwordKey);
+            try
+            {
+                string mnem = mnemonics;
+                if (!WalletKeyPair.CheckMnemonicValidity(mnem))
+                {
+                    return null;
+                    throw new Exception("Mnemonic is in incorect format");
+                }
+
+                this.mnemonics = mnemonics;
+                string encryptedMnemonics = cypher.Encrypt(this.mnemonics, password);
+
+                wallet = new Wallet(this.mnemonics, BIP39Wordlist.English);
+                //WebSocketActions.RequestForAccountSubscriptionSentAction?.Invoke(wallet.Account.GetPublicKey);
+                webSocketService.SubscribeToWalletAccountEvents(wallet.Account.GetPublicKey);
+                SavePlayerPrefs(mnemonicsKey, this.mnemonics);
+                SavePlayerPrefs(encryptedMnemonicsKey, encryptedMnemonics);
+
+                return wallet;
             }
-
-            this.mnemonics = mnemonics;
-
-            wallet = new Wallet(this.mnemonics, BIP39Wordlist.English);
-            PlayerPrefs.SetString("Mnemonics", this.mnemonics);
-
-            return wallet;
+            catch(Exception ex)
+            {
+                Debug.Log(ex);
+                return null;
+            }
         }
 
         public bool LoadSavedWallet()
         {
             string mnemonicWords = string.Empty;
-            if (PlayerPrefs.HasKey("Mnemonics"))
+            if (PlayerPrefs.HasKey(mnemonicsKey))
             {
-                mnemonicWords = PlayerPrefs.GetString("Mnemonics");
-                wallet = new Solnet.Wallet.Wallet(mnemonicWords, BIP39Wordlist.English);
-                return true;
+                try
+                {
+                    mnemonicWords = LoadPlayerPrefs(mnemonicsKey);
+
+                    wallet = new Wallet(mnemonicWords, BIP39Wordlist.English);
+                    webSocketService.SubscribeToWalletAccountEvents(wallet.Account.GetPublicKey);
+                    //WebSocketActions.RequestForAccountSubscriptionSentAction?.Invoke(wallet.Account.GetPublicKey);
+                    return true;
+                }
+                catch(Exception ex)
+                {
+                    return false;
+                }
             }
             return false;
+        }
+
+        public bool LoginCheckMnemonicAndPassword(string password)
+        {
+            try
+            {
+                string encryptedMnemonics = LoadPlayerPrefs(encryptedMnemonicsKey);
+                cypher.Decrypt(encryptedMnemonics, password);
+                return true;
+            }
+            catch(Exception ex)
+            {
+                return false;
+            }
         }
 
         public async Task<double> GetSolAmmount(Account account)
@@ -267,18 +363,54 @@ namespace AllArt.Solana
 
         public async Task<TokenAccount[]> GetOwnedTokenAccounts(Account account)
         {
-            RequestResult<ResponseValue<TokenAccount[]>> result = await activeRpcClient.GetTokenAccountsByOwnerAsync(account.GetPublicKey, "", TokenProgram.ProgramId);
-            if (result.Result != null && result.Result.Value != null)
+            try
             {
-                return result.Result.Value;
+                RequestResult<ResponseValue<TokenAccount[]>> result = await activeRpcClient.GetTokenAccountsByOwnerAsync(account.GetPublicKey, "", TokenProgram.ProgramId);
+                if (result.Result != null && result.Result.Value != null)
+                {
+                    return result.Result.Value;
+                }
+            }
+            catch(Exception ex)
+            {
+
             }
             return null;
         }
 
         public void DeleteWalletAndClearKey()
         {
-            PlayerPrefs.DeleteKey("Mnemonics");
+            webSocketService.UnSubscribeToWalletAccountEvents();
+            //PlayerPrefs.DeleteKey(mnemonicsKey);
             wallet = null;
         }
+
+        public void StartWebSocketConnection()
+        {
+            if (webSocketService.Socket != null) return;
+
+            webSocketService.StartConnection(GetWebsocketConnectionURL(clientSource));
+        }
+
+        #region Data Functions
+        public void SavePlayerPrefs(string key, string value)
+        {
+            PlayerPrefs.SetString(key, value);
+#if UNITY_WEBGL
+            PlayerPrefs.Save();
+#endif
+        }
+
+        public string LoadPlayerPrefs(string key)
+        {
+            return PlayerPrefs.GetString(key);
+        }
+        #endregion
+
+        #region Getters And Setters
+        public string MnemonicsKey => mnemonicsKey;
+        public string EncryptedMnemonicsKey => encryptedMnemonicsKey;
+        public string PasswordKey => passwordKey;
+        #endregion
     }
 }

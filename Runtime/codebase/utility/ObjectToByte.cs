@@ -98,11 +98,11 @@ namespace AllArt.Solana.Utility
 
 public static class JtokenExtension
 {
-    public static T GetValue<T>(this JToken jToken, string key, T defaultValue = default(T))
-    {
-        dynamic ret = jToken[key];
-        if (ret == null) return defaultValue;
-        if (ret is JObject) return JsonConvert.DeserializeObject<T>(ret.ToString());
-        return (T)ret;
-    }
+    //public static T GetValue<T>(this JToken jToken, string key, T defaultValue = default(T))
+    //{
+    //    dynamic ret = jToken[key];
+    //    if (ret == null) return defaultValue;
+    //    if (ret is JObject) return JsonConvert.DeserializeObject<T>(ret.ToString());
+    //    return (T)ret;
+    //}
 }

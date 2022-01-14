@@ -8,6 +8,9 @@
        	{
             "displayName": "Simple Wallet",
             "description": "Contains simple implementation of Unity Solana Wallet",
-            "path": "Samples~/SimpleWallet"
-        }]
+            "path": "Samples~"
+        }],
+	"dependencies":{
+		"com.unity.nuget.newtonsoft-json": "2.0.0"
+	}
 }

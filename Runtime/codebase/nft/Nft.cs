@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
+using Solnet.Wallet;
 
 namespace AllArt.Solana.Nft
 {
@@ -22,13 +23,14 @@ namespace AllArt.Solana.Nft
         public string externalUrl { get; set; }
         public Texture2D file { get; set; }
 
-        ~NftImage() {
-            if (file != null)
-            {
-                GameObject.Destroy(file);
-            }
-        }
+        public int heightAndWidth = 75;
 
+        //~NftImage() {
+        //    if (file != null)
+        //    {
+        //        GameObject.Destroy(file);
+        //    }
+        //}
     }
 
     [System.Serializable]
@@ -84,12 +86,14 @@ namespace AllArt.Solana.Nft
                     {
                         met.data.json = jsonData;
                         Texture2D texture = await FileLoader.LoadFile<Texture2D>(met.data.json.image);
-                        FileLoader.SaveToPersistenDataPath<Texture2D>(Path.Combine(Application.persistentDataPath, $"{mint}.png"), texture);
-                        if (texture)
+                        Texture2D compressedTexture = Resize(texture, 75, 75);
+                        FileLoader.SaveToPersistenDataPath<Texture2D>(Path.Combine(Application.persistentDataPath, $"{mint}.png"), compressedTexture);
+                        if (compressedTexture)
                         {
                             NftImage nftImage = new NftImage();
                             nftImage.externalUrl = jsonData.image;
-                            nftImage.file = texture;
+                            //nftImage.file = Resize(texture, nftImage.heightAndWidth, nftImage.heightAndWidth);
+                            nftImage.file = compressedTexture;
                             met.nftImage = nftImage;
                         }
                     }
@@ -204,6 +208,15 @@ namespace AllArt.Solana.Nft
                 throw;
             }
         }
-
+        private static Texture2D Resize(Texture2D texture2D, int targetX, int targetY)
+        {
+            RenderTexture rt = new RenderTexture(targetX, targetY, 24);
+            RenderTexture.active = rt;
+            Graphics.Blit(texture2D, rt);
+            Texture2D result = new Texture2D(targetX, targetY);
+            result.ReadPixels(new Rect(0, 0, targetX, targetY), 0, 0);
+            result.Apply();
+            return result;
+        }
     }
 }

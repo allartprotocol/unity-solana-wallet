@@ -19,7 +19,11 @@ namespace AllArt.Solana.Utility
             }
             else
             {
+#if UNITY_WEBGL
+                return await LoadJsonWebRequest<T>(path);
+#else
                 return await LoadJson<T>(path);
+#endif
             }
         }
 
