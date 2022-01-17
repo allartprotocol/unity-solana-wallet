@@ -15,6 +15,8 @@ using UnityEngine.UI;
 
 namespace AllArt.Solana
 {
+    [RequireComponent(typeof(Startup))]
+    [RequireComponent(typeof(MainThreadDispatcher))]
     public class WalletBaseComponent : MonoBehaviour
     {
         #region Connections
