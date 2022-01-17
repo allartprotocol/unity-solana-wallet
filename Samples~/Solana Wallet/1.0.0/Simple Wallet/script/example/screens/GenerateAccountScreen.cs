@@ -31,7 +31,7 @@ namespace AllArt.Solana.Example
             mnemonic_txt.text = WalletKeyPair.GenerateNewMnemonic();//"margin toast sheriff air tank liar tuna oyster cake tell trial more rebuild ostrich sick once palace uphold fall faculty clap slam job pitch";
             generate_btn.onClick.AddListener(() =>
             {
-                UnityMainThreadDispatcher.Instance().Enqueue(() => { GenerateNewAccount(); });
+                MainThreadDispatcher.Instance().Enqueue(() => { GenerateNewAccount(); });
                 //GenerateNewAccount();
             });
 

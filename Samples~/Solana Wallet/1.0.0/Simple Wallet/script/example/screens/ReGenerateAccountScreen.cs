@@ -49,6 +49,8 @@ namespace AllArt.Solana.Example
 
         public void GenerateNewAccount()
         {
+            SimpleWallet.instance.SavePlayerPrefs(SimpleWallet.instance.PasswordKey, password_input_field.text);
+
             Wallet keypair = SimpleWallet.instance.GenerateWalletWithMenmonic(mnemonic_txt.text);
             if (keypair != null)
             {
@@ -64,10 +66,11 @@ namespace AllArt.Solana.Example
         {
             base.ShowScreen();
 
-            error_txt.text = "";
             //mnemonic_txt.text = "margin toast sheriff air tank liar tuna oyster cake tell trial more rebuild ostrich sick once palace uphold fall faculty clap slam job pitch";
             //mnemonic_txt.text = "gym basket dizzy chest pact rubber canvas staff around shadow brain purchase hello parent digital degree window version still rather measure brass lock arrest";
-            mnemonic_txt.text = "";
+            error_txt.text = String.Empty;
+            mnemonic_txt.text = String.Empty;
+            password_input_field.text = String.Empty;
 
             gameObject.SetActive(true);
         }

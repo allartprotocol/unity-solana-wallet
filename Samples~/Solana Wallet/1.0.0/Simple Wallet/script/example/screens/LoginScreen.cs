@@ -20,6 +20,7 @@ namespace AllArt.Solana.Example
         public Button _loginBtn;
         public Button _tryAgainBtn;
         public Button _loadMnemonicsFromTxtBtn;
+        public Button _backBtn;
         public TextMeshProUGUI _messageTxt;
 
         public List<GameObject> _panels = new List<GameObject>();
@@ -33,7 +34,11 @@ namespace AllArt.Solana.Example
         private string _pubKey;
         private string[] _paths;
         private string _loadedMnemonics;
- 
+
+        private void OnEnable()
+        {
+            _passwordInputField.text = String.Empty;
+        }
 
         private void Start()
         {
@@ -54,6 +59,11 @@ namespace AllArt.Solana.Example
             _loginToWalletBtn.onClick.AddListener(() =>
             {
                 SwitchPanels(1);
+            });
+
+            _backBtn.onClick.AddListener(() => 
+            {
+                SwitchPanels(0);
             });
 
             _createNewWalletBtn.onClick.AddListener(() =>
@@ -207,6 +217,8 @@ namespace AllArt.Solana.Example
 
         private void SwitchPanels(int order)
         {
+            _passwordInputField.text = String.Empty;
+
             foreach (GameObject panel in _panels)
             {
                 if (panel.transform.GetSiblingIndex() == order)

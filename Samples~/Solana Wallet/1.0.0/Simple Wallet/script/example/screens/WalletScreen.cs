@@ -39,7 +39,7 @@ namespace AllArt.Solana.Example
             //simpleWallet = SimpleWallet.instance;
             WebSocketActions.WebSocketAccountSubscriptionAction += (bool istrue) => 
             {
-                UnityMainThreadDispatcher.Instance().Enqueue(() => { UpdateWalletBalanceDisplay(); });
+                MainThreadDispatcher.Instance().Enqueue(() => { UpdateWalletBalanceDisplay(); });
             };
             WebSocketActions.CloseWebSocketConnectionAction += DisconnectToWebSocket;
             refresh_btn?.onClick.AddListener(() =>
@@ -145,15 +145,17 @@ namespace AllArt.Solana.Example
 
         private async void UpdateWalletBalanceDisplay()
         {
+            if (SimpleWallet.instance.wallet is null) return;
+
             double sol = await SimpleWallet.instance.GetSolAmmount(SimpleWallet.instance.wallet.GetAccount(0));
-            UnityMainThreadDispatcher.Instance().Enqueue(() => { lamports.text = $"{sol}"; });
+            MainThreadDispatcher.Instance().Enqueue(() => { lamports.text = $"{sol}"; });
             //lamports.text = $"{sol}";
         }
 
         private void DisconnectToWebSocket()
         {
-            UnityMainThreadDispatcher.Instance().Enqueue(() => { manager.ShowScreen(this, "login_screen"); });
-            UnityMainThreadDispatcher.Instance().Enqueue(() => { SimpleWallet.instance.DeleteWalletAndClearKey(); });
+            MainThreadDispatcher.Instance().Enqueue(() => { manager.ShowScreen(this, "login_screen"); });
+            MainThreadDispatcher.Instance().Enqueue(() => { SimpleWallet.instance.DeleteWalletAndClearKey(); });
             //manager.ShowScreen(this, "login_screen");
             //SimpleWallet.instance.DeleteWalletAndClearKey();
         }
@@ -183,7 +185,7 @@ namespace AllArt.Solana.Example
                 int itemIndex = 0;
                 foreach (TokenAccount item in result)
                 {
-                    if (int.Parse(item.Account.Data.Parsed.Info.TokenAmount.Amount) > 0)
+                    if (float.Parse(item.Account.Data.Parsed.Info.TokenAmount.Amount) > 0)
                     {
                         Nft.Nft nft = await Nft.Nft.TryGetNftData(item.Account.Data.Parsed.Info.Mint, SimpleWallet.instance.activeRpcClient, true);
 
@@ -193,7 +195,7 @@ namespace AllArt.Solana.Example
 
                         //Debug.Log("new");
                         //AllArt.Solana.Nft.Nft nft = t.Result;
-
+                        if (itemIndex >= token_items.Count) return;
                         if (token_items[itemIndex] == null) return;
 
                         token_items[itemIndex].gameObject.SetActive(true);

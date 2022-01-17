@@ -43,7 +43,7 @@ namespace AllArt.Solana.Example
 
                 if (logo != null)
                 {
-                    UnityMainThreadDispatcher.Instance().Enqueue(() => { logo.texture = nftData.metaplexData.nftImage.file; });
+                    MainThreadDispatcher.Instance().Enqueue(() => { logo.texture = nftData.metaplexData.nftImage.file; });
                     //logo.texture = nftData.metaplexData.nftImage.file;
                 }
             }
@@ -53,6 +53,9 @@ namespace AllArt.Solana.Example
                 //UnityMainThreadDispatcher.Instance().Enqueue(() => { logo.gameObject.SetActive(false); });
                 //UnityMainThreadDispatcher.Instance().Enqueue(() => { pub_txt.text = tokenAccount.Account.Data.Parsed.Info.Mint; });
                 ammount_txt.text = tokenAccount.Account.Data.Parsed.Info.TokenAmount.Amount.ToString();
+
+                if (logo is null) return;
+
                 logo.gameObject.SetActive(false);
                 pub_txt.text = tokenAccount.Account.Data.Parsed.Info.Mint;
             }

@@ -33,13 +33,13 @@ public class WalletHolder : MonoBehaviour
     {
         if (isSubscribed)
         {
-            UnityMainThreadDispatcher.Instance().Enqueue(() => { img.color = Color.green; });
-            UnityMainThreadDispatcher.Instance().Enqueue(() => { subscription_txt.text = "Subscribed"; });
+            MainThreadDispatcher.Instance().Enqueue(() => { img.color = Color.green; });
+            MainThreadDispatcher.Instance().Enqueue(() => { subscription_txt.text = "Subscribed"; });
         }
         else
         {
-            UnityMainThreadDispatcher.Instance().Enqueue(() => { img.color = Color.red; });
-            UnityMainThreadDispatcher.Instance().Enqueue(() => { subscription_txt.text = "Not Subscribed"; });
+            MainThreadDispatcher.Instance().Enqueue(() => { img.color = Color.red; });
+            MainThreadDispatcher.Instance().Enqueue(() => { subscription_txt.text = "Not Subscribed"; });
         }
     }
 }
