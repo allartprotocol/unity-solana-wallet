@@ -19,6 +19,13 @@ namespace AllArt.Solana
     [RequireComponent(typeof(MainThreadDispatcher))]
     public class WalletBaseComponent : MonoBehaviour
     {
+        #region Player Prefs Keys
+
+        private string mnemonicsKey = "Mnemonics";
+        private string passwordKey = "Password";
+        private string encryptedMnemonicsKey = "EncryptedMnemonics";
+        private string privateKeyKey = "PrivateKey";
+        #endregion
         #region Connections
         public static string devNetAdress = "https://api.devnet.solana.com";
         public static string testNetAdress = "https://api.testnet.solana.com";
@@ -27,10 +34,6 @@ namespace AllArt.Solana
         public static string webSocketDevNetAdress = "ws://api.devnet.solana.com";
         public static string webSocketTestNetAdress = "ws://api.testnet.solana.com";
         public static string webSocketMainNetAdress = "ws://api.mainnet-beta.solana.com";
-
-        private string mnemonicsKey = "Mnemonics";
-        private string passwordKey = "Password";
-        private string encryptedMnemonicsKey = "EncryptedMnemonics";
 
         public string customUrl = "http://192.168.0.22:8899";
         
@@ -112,6 +115,7 @@ namespace AllArt.Solana
         public Wallet wallet { get; set; }
         public string mnemonics { get; private set; }
         public string password { get; private set; }
+        public string privateKey { get; private set; }
 
         [HideInInspector]
         public WebSocketService webSocketService;
@@ -232,6 +236,7 @@ namespace AllArt.Solana
 
                 wallet = new Wallet(this.mnemonics, BIP39Wordlist.English);
                 //WebSocketActions.RequestForAccountSubscriptionSentAction?.Invoke(wallet.Account.GetPublicKey);
+                privateKey = wallet.Account.GetPrivateKey;
                 webSocketService.SubscribeToWalletAccountEvents(wallet.Account.GetPublicKey);
                 SavePlayerPrefs(mnemonicsKey, this.mnemonics);
                 SavePlayerPrefs(encryptedMnemonicsKey, encryptedMnemonics);
@@ -413,6 +418,7 @@ namespace AllArt.Solana
         public string MnemonicsKey => mnemonicsKey;
         public string EncryptedMnemonicsKey => encryptedMnemonicsKey;
         public string PasswordKey => passwordKey;
+        public string PrivateKeyKey => privateKeyKey;
         #endregion
     }
 }

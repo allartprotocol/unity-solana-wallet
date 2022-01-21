@@ -97,6 +97,7 @@ namespace AllArt.Solana.Example
 #elif UNITY_EDITOR || UNITY_EDITOR_WIN || UNITY_STANDALONE
 
                 paths = StandaloneFileBrowser.OpenFilePanel("Title", "", "txt", false);
+                if (paths.Length == 0) return;
                 path = paths[0];
 
 #elif UNITY_ANDROID || UNITY_IPHONE
@@ -149,15 +150,12 @@ namespace AllArt.Solana.Example
 
             double sol = await SimpleWallet.instance.GetSolAmmount(SimpleWallet.instance.wallet.GetAccount(0));
             MainThreadDispatcher.Instance().Enqueue(() => { lamports.text = $"{sol}"; });
-            //lamports.text = $"{sol}";
         }
 
         private void DisconnectToWebSocket()
         {
             MainThreadDispatcher.Instance().Enqueue(() => { manager.ShowScreen(this, "login_screen"); });
             MainThreadDispatcher.Instance().Enqueue(() => { SimpleWallet.instance.DeleteWalletAndClearKey(); });
-            //manager.ShowScreen(this, "login_screen");
-            //SimpleWallet.instance.DeleteWalletAndClearKey();
         }
 
         public override void ShowScreen(object data = null)

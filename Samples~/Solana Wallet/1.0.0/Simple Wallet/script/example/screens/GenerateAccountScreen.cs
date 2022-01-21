@@ -27,12 +27,10 @@ namespace AllArt.Solana.Example
 
         void Start()
         {
-            //WalletSeed.GenerateNewMnemonic();//
             mnemonic_txt.text = WalletKeyPair.GenerateNewMnemonic();//"margin toast sheriff air tank liar tuna oyster cake tell trial more rebuild ostrich sick once palace uphold fall faculty clap slam job pitch";
             generate_btn.onClick.AddListener(() =>
             {
                 MainThreadDispatcher.Instance().Enqueue(() => { GenerateNewAccount(); });
-                //GenerateNewAccount();
             });
 
             restore_btn.onClick.AddListener(() =>
@@ -41,34 +39,11 @@ namespace AllArt.Solana.Example
             });
 
             save_mnemonics_btn.onClick.AddListener(SaveMnemonicsToTxtFile);
-
-            //if (!SimpleWallet.instance.LoadSavedWallet())
-            //{
-            //    ShowScreen();
-            //}
-            //else
-            //{
-            //    manager.ShowScreen(this, "wallet_screen");
-            //}
         }
 
         private void OnEnable()
         {
             need_password_txt.gameObject.SetActive(false);
-
-            //if (!SimpleWallet.instance)
-            //    return;
-
-            //if (!SimpleWallet.instance.LoadSavedWallet())
-            //{
-            //    ShowScreen();
-            //}
-            //else
-            //{
-            //    manager.ShowScreen(this, "wallet_screen");
-
-            //    //UnityMainThreadDispatcher.Instance().Enqueue(() => { WebSocketActions.RequestForAccountSubscriptionSentAction?.Invoke(SimpleWallet.instance.wallet.Account.GetPublicKey); });               
-            //}
             mnemonic_txt.text = WalletKeyPair.GenerateNewMnemonic();
         }
 
@@ -84,8 +59,6 @@ namespace AllArt.Solana.Example
             SimpleWallet.instance.SavePlayerPrefs(SimpleWallet.instance.PasswordKey, password_input_field.text);
             try
             {
-                //UnityMainThreadDispatcher.Instance().Enqueue(() => { SimpleWallet.instance.GenerateWalletWithMenmonic(mnemonic_txt.text); });
-                
                 SimpleWallet.instance.GenerateWalletWithMenmonic(mnemonic_txt.text);
                 string mnemonics = mnemonic_txt.text;
                 manager.ShowScreen(this, "wallet_screen");

@@ -45,13 +45,6 @@ namespace AllArt.Solana.Example
             _cypher = new Cypher();
             _simpleWallet = SimpleWallet.instance;
             //_mnemonics = "gym basket dizzy chest pact rubber canvas staff around shadow brain purchase hello parent digital degree window version still rather measure brass lock arrest";
-            //_password = _simpleWallet.LoadPlayerPrefs(_simpleWallet.PasswordKey);
-            //_mnemonics = _simpleWallet.LoadPlayerPrefs(_simpleWallet.PasswordKey);
-            //_password = _simpleWallet.LoadPlayerPrefs(_simpleWallet.PasswordKey);
-            //_simpleWallet.SavePlayerPrefs(_simpleWallet.MnemonicsKey, _mnemonics);
-
-            //This is temporary
-            //_simpleWallet.SavePlayerPrefs(_simpleWallet.EncryptedMnemonicsKey, _cypher.Encrypt(_mnemonics, _password));
             _passwordText.text = "";
 
             SwitchButtons("Login");
@@ -71,7 +64,6 @@ namespace AllArt.Solana.Example
                 SimpleWallet.instance.DeleteWalletAndClearKey();
                 manager.ShowScreen(this, "generate_screen");
                 SwitchPanels(0);
-                //parentManager.ShowScreen(this, "[Connect_Wallet_Screen]");
             });
 
             _loginBtn.onClick.AddListener(LoginChecker);
@@ -82,8 +74,6 @@ namespace AllArt.Solana.Example
 
         private void LoginChecker()
         {
-            //_password = _simpleWallet.LoadPlayerPrefs(_simpleWallet.PasswordKey);
-            //_mnemonics = _simpleWallet.LoadPlayerPrefs(_simpleWallet.PasswordKey);
             if (_simpleWallet.LoginCheckMnemonicAndPassword(_passwordInputField.text))
             {
                 SimpleWallet.instance.GenerateWalletWithMenmonic(_simpleWallet.LoadPlayerPrefs(_simpleWallet.MnemonicsKey));
@@ -107,6 +97,7 @@ namespace AllArt.Solana.Example
                  UploadFile(gameObject.name, "OnFileUpload", ".txt", false);
 #elif UNITY_EDITOR || UNITY_EDITOR_WIN || UNITY_STANDALONE
                 _paths = StandaloneFileBrowser.OpenFilePanel("Title", "", "txt", false);
+                if (_paths.Length == 0) return;
                 _path = _paths[0];
                 _loadedMnemonics = File.ReadAllText(_path);
 #elif UNITY_ANDROID || UNITY_IPHONE
