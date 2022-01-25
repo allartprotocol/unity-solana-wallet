@@ -60,7 +60,7 @@ Solnet is Solana's .NET SDK to integrate with the .NET ecosystem.  [Solnet](http
 2. After importing the wallet Unity will throw unity-plastic error. Just restart Unity.
 3. Create a new scene.
 4. Import WalletController prefab into your scene.
-5. Set Client Source and Storage Method on SimpleWallet script in WalletController prefab.
+5. Set Client Source (Mainnet/Testnet/Devnet/Custom uri) and Storage Method (Json/Simple txt) on SimpleWallet script in WalletController prefab.
 6. If you use custom URI be careful to use WS/WSS instead of HTTP/HTTPS because WebSocket does not work with HTTP / HTTPS.
 7. To save mnemonics in JSON format, select the JSON storage method, and if you want to save it as a regular string, select Simple Txt.
 8. If you want to use mnemonics saved in JSON format, you must deserialize it first. You have an example in ReGenerateAccountScreen.cs in the ResolveMnemonicsByType method.
