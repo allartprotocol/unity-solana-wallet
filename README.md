@@ -25,6 +25,7 @@ Solnet is Solana's .NET SDK to integrate with the .NET ecosystem.  [Solnet](http
 - Basic UI examples 
 - WebSocket subscription
 - Save and load mnemonics from local txt file
+- Save private key in txt file
 
 ## Dependencies
 - Newtonsoft.Json
