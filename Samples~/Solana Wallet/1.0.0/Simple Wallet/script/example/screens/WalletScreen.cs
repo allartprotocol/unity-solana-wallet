@@ -71,7 +71,7 @@ namespace AllArt.Solana.Example
 
             save_private_key_btn.onClick.AddListener(() => 
             {
-                _txtLoader.SaveTxt(_privateKeyFileTitle, SimpleWallet.instance.LoadPlayerPrefs(SimpleWallet.instance.PrivateKeyKey), false);
+                _txtLoader.SaveByteArray(_privateKeyFileTitle, SimpleWallet.instance.privateKey, false);
             });
 
             save_mnemonics_btn.onClick.AddListener(() =>
@@ -80,22 +80,31 @@ namespace AllArt.Solana.Example
             });
 
             _txtLoader.TxtSavedAction += SaveMnemonicsOnClick;
-            _txtLoader.TxtSavedAction += SavePrivateKeyOnClick;
+            _txtLoader.ByteArraySavedAction += SavePrivateKeyOnClick;
 
             stopTask = new CancellationTokenSource();
         }
 
-        private void SavePrivateKeyOnClick(string path, string key, string fileTitle)
+        private void SavePrivateKeyOnClick(string path, byte[] key, string fileTitle)
         {
             if (!this.gameObject.activeSelf) return;
             if (fileTitle != _privateKeyFileTitle) return;
 
+            List<string> list = new List<string>();
+            foreach (byte item in key)
+            {
+                list.Add(item.ToString());
+            }
+
             if (path != string.Empty)
-                File.WriteAllText(path, key);
+            {
+                File.WriteAllLines(path, list);
+            }
             else
             {
-                var bytes = Encoding.UTF8.GetBytes(key);
-                DownloadFile(gameObject.name, "OnFileDownload", "Mnemonics.txt", bytes, bytes.Length);
+                string result = string.Join(Environment.NewLine, list);
+                var bytes = Encoding.UTF8.GetBytes(result);
+                DownloadFile(gameObject.name, "OnFileDownload", _privateKeyFileTitle + ".txt", bytes, bytes.Length);
             }
         }
 
@@ -123,7 +132,7 @@ namespace AllArt.Solana.Example
                 else
                 {
                     var bytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(mnemonicsModel));
-                    DownloadFile(gameObject.name, "OnFileDownload", "Mnemonics.txt", bytes, bytes.Length);
+                    DownloadFile(gameObject.name, "OnFileDownload", _mnemonicsFileTitle + ".txt", bytes, bytes.Length);
                 }
             }
             else if (SimpleWallet.instance.StorageMethodReference == StorageMethod.SimpleTxt)
@@ -133,7 +142,7 @@ namespace AllArt.Solana.Example
                 else
                 {
                     var bytes = Encoding.UTF8.GetBytes(mnemonics);
-                    DownloadFile(gameObject.name, "OnFileDownload", "Mnemonics.txt", bytes, bytes.Length);
+                    DownloadFile(gameObject.name, "OnFileDownload", _mnemonicsFileTitle + ".txt", bytes, bytes.Length);
                 }
             }
         }

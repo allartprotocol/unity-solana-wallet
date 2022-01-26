@@ -19,7 +19,7 @@ namespace AllArt.Solana.Example
         public Button _loginToWalletBtn;
         public Button _loginBtn;
         public Button _tryAgainBtn;
-        public Button _loadMnemonicsFromTxtBtn;
+        //public Button _loginWithPrivateKeyBtn;
         public Button _backBtn;
         public TextMeshProUGUI _messageTxt;
 
@@ -33,7 +33,7 @@ namespace AllArt.Solana.Example
         private Cypher _cypher;
         private string _pubKey;
         private string[] _paths;
-        private string _loadedMnemonics;
+        private string _loadedKey;
 
         private void OnEnable()
         {
@@ -67,10 +67,60 @@ namespace AllArt.Solana.Example
             });
 
             _loginBtn.onClick.AddListener(LoginChecker);
-            _tryAgainBtn.onClick.AddListener(() => { SwitchButtons("Login"); });
-            _loadMnemonicsFromTxtBtn.onClick.AddListener(LoadMnemonicsFromTxtClicked);
+            _tryAgainBtn.onClick.AddListener(() => { SwitchButtons("Login"); });  
+            //_loginWithPrivateKeyBtn.onClick.AddListener(LoginWithPrivateKeyOnClick);
+
             _messageTxt.gameObject.SetActive(false);
         }
+
+//        private void LoginWithPrivateKeyOnClick()
+//        {
+//            try
+//            {
+//#if UNITY_WEBGL && !UNITY_EDITOR
+//                 UploadFile(gameObject.name, "OnFileUpload", ".txt", false);
+//#elif UNITY_EDITOR || UNITY_EDITOR_WIN || UNITY_STANDALONE
+//                _paths = StandaloneFileBrowser.OpenFilePanel("Title", "", "txt", false);
+//                if (_paths.Length == 0) return;
+//                _path = _paths[0];
+//                _loadedKey = File.ReadAllText(_path);
+//#elif UNITY_ANDROID || UNITY_IPHONE
+//                string txt;
+//                txt = NativeFilePicker.ConvertExtensionToFileType("txt");
+//                NativeFilePicker.Permission permission = NativeFilePicker.PickFile((path) =>
+//		            {
+//			            if (path == null)
+//				            Debug.Log("Operation cancelled");
+//			            else
+//			            {
+//                            _loadedKey = File.ReadAllText(path);
+//                        }
+//		            }, new string[] { txt });
+//		        Debug.Log("Permission result: " + permission);
+//#endif
+//#if UNITY_EDITOR || UNITY_EDITOR_WIN || UNITY_STANDALONE || UNITY_ANDROID || UNITY_IPHONE
+//                LoginWithPrivateKeyCallback();
+//#endif
+//            }
+//            catch (Exception ex)
+//            {
+//                Debug.Log(ex);
+//            }
+//        }
+
+//        private void LoginWithPrivateKeyCallback()
+//        {
+//            string priv = SimpleWallet.instance.LoadPlayerPrefs(SimpleWallet.instance.PrivateKeyKey);
+//            string[] str = priv.Split(' ');
+//            byte[] bytes = new byte[str.Length];
+//            for (int i = 0; i < str.Length; i++)
+//            {
+//                bytes[i] = Byte.Parse(str[i]);
+//            }
+
+//            SimpleWallet.instance.GenerateWalletWithPrivateKey(bytes);
+//            manager.ShowScreen(this, "wallet_screen");
+//        }
 
         private void LoginChecker()
         {
@@ -84,106 +134,6 @@ namespace AllArt.Solana.Example
             else
             {
                 SwitchButtons("TryAgain");
-            }
-        }
-
-        private void LoadMnemonicsFromTxtClicked()
-        {
-            _messageTxt.gameObject.SetActive(false);
-
-            try
-            {
-#if UNITY_WEBGL && !UNITY_EDITOR
-                 UploadFile(gameObject.name, "OnFileUpload", ".txt", false);
-#elif UNITY_EDITOR || UNITY_EDITOR_WIN || UNITY_STANDALONE
-                _paths = StandaloneFileBrowser.OpenFilePanel("Title", "", "txt", false);
-                if (_paths.Length == 0) return;
-                _path = _paths[0];
-                _loadedMnemonics = File.ReadAllText(_path);
-#elif UNITY_ANDROID || UNITY_IPHONE
-                string txt;
-                txt = NativeFilePicker.ConvertExtensionToFileType("txt");
-                NativeFilePicker.Permission permission = NativeFilePicker.PickFile((path) =>
-		            {
-			            if (path == null)
-				            Debug.Log("Operation cancelled");
-			            else
-			            {
-                            _loadedMnemonics = File.ReadAllText(path);
-                        }
-		            }, new string[] { txt });
-		        Debug.Log("Permission result: " + permission);
-#endif
-#if UNITY_EDITOR || UNITY_EDITOR_WIN || UNITY_STANDALONE || UNITY_ANDROID || UNITY_IPHONE
-                EncryptAndSaveLoadedMnemonics();
-#endif
-            }
-            catch (Exception ex)
-            {
-                Debug.Log(ex);
-            }
-        }
-
-        private void EncryptAndSaveLoadedMnemonics()
-        {
-            if (!string.IsNullOrEmpty(_loadedMnemonics))
-            {
-                if (_simpleWallet.storageMethod == StorageMethod.JSON)
-                {
-                    try
-                    {
-                        JSONDeserialization();
-                    }
-                    catch
-                    {
-                        try
-                        {
-                            SimpleTxtDeserialization();
-                        }
-                        catch
-                        {
-                            _messageTxt.gameObject.SetActive(true);
-                            _messageTxt.text = "Incorrect mnemonics format!";
-                            return;
-                        }
-                    }
-                }
-                else if (_simpleWallet.storageMethod == StorageMethod.SimpleTxt)
-                {
-                    try
-                    {
-                        SimpleTxtDeserialization();
-                    }
-                    catch
-                    {
-                        try
-                        {
-                            JSONDeserialization();
-                        }
-                        catch
-                        {
-                            _messageTxt.gameObject.SetActive(true);
-                            _messageTxt.text = "Incorrect mnemonics format!";
-                            return;
-                        }
-                    }
-                }
-
-                string encryptedMnemonics = _cypher.Encrypt(_mnemonics, _password);
-                _simpleWallet.SavePlayerPrefs("Mnemonics", _mnemonics);
-                _simpleWallet.SavePlayerPrefs("EncryptedMnemonics", encryptedMnemonics);
-            }
-
-            void JSONDeserialization()
-            {
-                MnemonicsModel mnemonicsModel = JsonConvert.DeserializeObject<MnemonicsModel>(_loadedMnemonics);
-                string deserializedMnemonics = string.Join(" ", mnemonicsModel.Mnemonics);
-                _mnemonics = deserializedMnemonics;
-            }
-
-            void SimpleTxtDeserialization()
-            {
-                _mnemonics = _loadedMnemonics;
             }
         }
 
@@ -234,9 +184,9 @@ namespace AllArt.Solana.Example
         {
             var loader = new WWW(url);
             yield return loader;
-            _loadedMnemonics = loader.text;
+            _loadedKey = loader.text;
 
-            EncryptAndSaveLoadedMnemonics();
+            //LoginWithPrivateKeyCallback();
         }
     }
 }

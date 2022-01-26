@@ -20,8 +20,9 @@ namespace AllArt.Solana.Example
         /// First param is path
         /// Second param is Text to save
         /// Third param is title of the txt file
-        /// </summary>
+        /// </summary>>
         public Action<string, string, string> TxtSavedAction;
+        public Action<string, byte[], string> ByteArraySavedAction;
         public void LoadTxt()
         {
             try
@@ -93,6 +94,42 @@ namespace AllArt.Solana.Example
                 File.WriteAllText(_path, txtToSave);
             else
                 TxtSavedAction?.Invoke(_path, txtToSave, fileTitle);
+        }
+
+        public void SaveByteArray(string fileTitle, byte[] array, bool instantSave)
+        {
+            _path = string.Empty;
+#if UNITY_WEBGL && !UNITY_EDITOR
+                if(instantSave)
+                {
+                    var bytes = array;
+                    DownloadFile(gameObject.name, "OnFileDownload", fileTitle + ".txt", bytes, bytes.Length);
+                }
+                else
+                    ByteArraySavedAction?.Invoke(_path, array, fileTitle);
+                
+#elif UNITY_EDITOR || UNITY_EDITOR_WIN || UNITY_STANDALONE
+
+            string[] paths = StandaloneFileBrowser.OpenFilePanel("Title", "", "txt", false);
+            if (paths.Length == 0) return;
+            _path = paths[0];
+
+#elif UNITY_ANDROID || UNITY_IPHONE
+                string fileType = NativeFilePicker.ConvertExtensionToFileType("txt");
+                NativeFilePicker.Permission permission = NativeFilePicker.PickFile((path) =>
+                {
+                    if (path == null)
+                        Debug.Log("Operation cancelled");
+                    else
+                    {
+                        _path = path;
+                    }
+                }, new string[] { fileType });
+#endif
+            if (instantSave)
+                File.WriteAllBytes(_path, array);
+            else
+                ByteArraySavedAction?.Invoke(_path, array, fileTitle);
         }
 
         //

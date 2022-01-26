@@ -9,6 +9,7 @@ using Solnet.Rpc.Models;
 using Solnet.Wallet;
 using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
@@ -241,7 +242,7 @@ namespace AllArt.Solana
                 SavePlayerPrefs(mnemonicsKey, this.mnemonics);
                 SavePlayerPrefs(encryptedMnemonicsKey, encryptedMnemonics);
 
-                string privateKeyString = string.Join(",", privateKey);
+                string privateKeyString = string.Join(" ", privateKey);
                 SavePlayerPrefs(privateKeyKey, privateKeyString);
 
                 return wallet;
