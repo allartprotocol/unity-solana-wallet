@@ -189,8 +189,8 @@ namespace AllArt.Solana.Example
             var loader = new WWW(url);
             yield return loader;
 
-            _loadedMnemonics = loader.text;
-            ResolveMnemonicsByType();
+            MainThreadDispatcher.Instance().Enqueue(() => { _loadedMnemonics = loader.text; });
+            MainThreadDispatcher.Instance().Enqueue(() => { ResolveMnemonicsByType(); });           
         }
     }
 }

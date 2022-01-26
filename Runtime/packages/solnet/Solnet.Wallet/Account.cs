@@ -65,6 +65,11 @@ namespace Solnet.Wallet
         public string GetPrivateKey => Base58Encoding.Encode(_privateKey);
 
         /// <summary>
+        /// Get byte array of private key
+        /// </summary>
+        public byte[] GetByteArayPrivateKey => _privateKey;
+
+        /// <summary>
         /// Get the public key encoded as base58.
         /// </summary>
         public string GetPublicKey => Base58Encoding.Encode(_publicKey);

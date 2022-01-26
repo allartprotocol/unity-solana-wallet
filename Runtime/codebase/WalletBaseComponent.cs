@@ -115,7 +115,7 @@ namespace AllArt.Solana
         public Wallet wallet { get; set; }
         public string mnemonics { get; private set; }
         public string password { get; private set; }
-        public string privateKey { get; private set; }
+        public byte[] privateKey { get; private set; }
 
         [HideInInspector]
         public WebSocketService webSocketService;
@@ -235,11 +235,14 @@ namespace AllArt.Solana
                 string encryptedMnemonics = cypher.Encrypt(this.mnemonics, password);
 
                 wallet = new Wallet(this.mnemonics, BIP39Wordlist.English);
-                //WebSocketActions.RequestForAccountSubscriptionSentAction?.Invoke(wallet.Account.GetPublicKey);
-                privateKey = wallet.Account.GetPrivateKey;
+
+                privateKey = wallet.Account.GetByteArayPrivateKey;
                 webSocketService.SubscribeToWalletAccountEvents(wallet.Account.GetPublicKey);
                 SavePlayerPrefs(mnemonicsKey, this.mnemonics);
                 SavePlayerPrefs(encryptedMnemonicsKey, encryptedMnemonics);
+
+                string privateKeyString = string.Join(",", privateKey);
+                SavePlayerPrefs(privateKeyKey, privateKeyString);
 
                 return wallet;
             }
@@ -248,6 +251,13 @@ namespace AllArt.Solana
                 Debug.Log(ex);
                 return null;
             }
+        }
+
+        public Wallet GenerateWalletWithPrivateKey(byte[] privateKey)
+        {
+            wallet = new Wallet(privateKey);
+
+            return wallet;
         }
 
         public bool LoadSavedWallet()

@@ -16,7 +16,12 @@ namespace AllArt.Solana.Example
         private string _path;
 
         public Action<string> TxtLoadedAction;
-        public Action<string, string> TxtSavedAction;
+        /// <summary>
+        /// First param is path
+        /// Second param is Text to save
+        /// Third param is title of the txt file
+        /// </summary>
+        public Action<string, string, string> TxtSavedAction;
         public void LoadTxt()
         {
             try
@@ -57,15 +62,14 @@ namespace AllArt.Solana.Example
         public void SaveTxt(string fileTitle, string txtToSave, bool instantSave)
         {
             _path = string.Empty;
-
 #if UNITY_WEBGL && !UNITY_EDITOR
                 if(instantSave)
                 {
                     var bytes = Encoding.UTF8.GetBytes(txtToSave);
-                    DownloadFile(gameObject.name, "OnFileDownload", fileTitle, bytes, bytes.Length);
+                    DownloadFile(gameObject.name, "OnFileDownload", fileTitle + ".txt", bytes, bytes.Length);
                 }
                 else
-                    TxtSavedAction?.Invoke(_path, txtToSave);
+                    TxtSavedAction?.Invoke(_path, txtToSave, fileTitle);
                 
 #elif UNITY_EDITOR || UNITY_EDITOR_WIN || UNITY_STANDALONE
 
@@ -88,7 +92,7 @@ namespace AllArt.Solana.Example
             if (instantSave)
                 File.WriteAllText(_path, txtToSave);
             else
-                TxtSavedAction?.Invoke(_path, txtToSave);
+                TxtSavedAction?.Invoke(_path, txtToSave, fileTitle);
         }
 
         //

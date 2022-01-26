@@ -21,12 +21,13 @@ namespace AllArt.Solana.Example
         public TMP_InputField password_input_field;
         public TextMeshProUGUI need_password_txt;
 
-        private string password;
-        private string path;
-        private string[] paths;
+        private TxtLoader _txtLoader;
+        private string _mnemonicsFileTitle = "Mnemonics";
+        private string _privateKeyFileTitle = "PrivateKey";
 
         void Start()
         {
+            _txtLoader = new TxtLoader();
             mnemonic_txt.text = WalletKeyPair.GenerateNewMnemonic();//"margin toast sheriff air tank liar tuna oyster cake tell trial more rebuild ostrich sick once palace uphold fall faculty clap slam job pitch";
             generate_btn.onClick.AddListener(() =>
             {
@@ -38,7 +39,12 @@ namespace AllArt.Solana.Example
                 manager.ShowScreen(this, "re-generate_screen");
             });
 
-            save_mnemonics_btn.onClick.AddListener(SaveMnemonicsToTxtFile);
+            save_mnemonics_btn.onClick.AddListener(() =>
+            {
+                _txtLoader.SaveTxt(_mnemonicsFileTitle, mnemonic_txt.text, false);
+            });
+
+            _txtLoader.TxtSavedAction += SaveMnemonicsToTxtFile;
         }
 
         private void OnEnable()
@@ -84,15 +90,16 @@ namespace AllArt.Solana.Example
             gameObject.SetActive(false);
         }
 
-        private void SaveMnemonicsToTxtFile()
+        private void SaveMnemonicsToTxtFile(string path, string mnemonics, string fileTitle)
         {
-#if UNITY_WEBGL && !UNITY_EDITOR
-            string mnemonic = mnemonic_txt.text;
+            if (!this.gameObject.activeSelf) return;
+            if (fileTitle != _mnemonicsFileTitle) return;
+
             if (SimpleWallet.instance.StorageMethodReference == StorageMethod.JSON)
             {
                 List<string> mnemonicsList = new List<string>();
 
-                string[] splittedStringArray = mnemonic.Split(' ');
+                string[] splittedStringArray = mnemonics.Split(' ');
                 foreach (string stringInArray in splittedStringArray)
                 {
                     mnemonicsList.Add(stringInArray);
@@ -102,57 +109,25 @@ namespace AllArt.Solana.Example
                     Mnemonics = mnemonicsList
                 };
 
-                //File.WriteAllText(path, JsonConvert.SerializeObject(mnemonicsModel));
-                var bytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(mnemonicsModel));
-                DownloadFile(gameObject.name, "OnFileDownload", "sample.txt", bytes, bytes.Length);
-            }
-            else if (SimpleWallet.instance.StorageMethodReference == StorageMethod.SimpleTxt)
-            {
-                //File.WriteAllText(path, mnemonic);
-                var bytes = Encoding.UTF8.GetBytes(mnemonic);
-                DownloadFile(gameObject.name, "OnFileDownload", "mnemonics.txt", bytes, bytes.Length);
-            }
-#elif UNITY_EDITOR || UNITY_EDITOR_WIN || UNITY_STANDALONE
-
-            paths = StandaloneFileBrowser.OpenFilePanel("Title", "", "txt", false);
-            if(paths.Length > 0)
-                path = paths[0];
-
-#elif UNITY_ANDROID || UNITY_IPHONE
-            string fileType = NativeFilePicker.ConvertExtensionToFileType("txt");
-            NativeFilePicker.Permission permission = NativeFilePicker.PickFile((path) =>
-            {
-                if (path == null)
-                    Debug.Log("Operation cancelled");
+                if (path != string.Empty)
+                    File.WriteAllText(path, JsonConvert.SerializeObject(mnemonicsModel));
                 else
                 {
-                    this.path = path;
+                    var bytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(mnemonicsModel));
+                    DownloadFile(gameObject.name, "OnFileDownload", _mnemonicsFileTitle + ".txt", bytes, bytes.Length);
                 }
-            }, new string[] { fileType });
-#endif
-            string mnem = mnemonic_txt.text;
-            if (SimpleWallet.instance.StorageMethodReference == StorageMethod.JSON)
-            {
-                List<string> mnemonicsList = new List<string>();
-
-                string[] splittedStringArray = mnem.Split(' ');
-                foreach (string stringInArray in splittedStringArray)
-                {
-                    mnemonicsList.Add(stringInArray);
-                }
-                MnemonicsModel mnemonicsModel = new MnemonicsModel
-                {
-                    Mnemonics = mnemonicsList
-                };
-
-                File.WriteAllText(path, JsonConvert.SerializeObject(mnemonicsModel));
             }
             else if (SimpleWallet.instance.StorageMethodReference == StorageMethod.SimpleTxt)
             {
-                File.WriteAllText(path, mnem);
+                if (path != string.Empty)
+                    File.WriteAllText(path, mnemonics);
+                else
+                {
+                    var bytes = Encoding.UTF8.GetBytes(mnemonics);
+                    DownloadFile(gameObject.name, "OnFileDownload", _mnemonicsFileTitle + ".txt", bytes, bytes.Length);
+                }
             }
         }
-
         //
         // WebGL
         //

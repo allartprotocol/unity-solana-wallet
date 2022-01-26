@@ -12,6 +12,7 @@ using SFB;
 using System.Runtime.InteropServices;
 using System.Collections;
 using System.Text;
+using System;
 
 namespace AllArt.Solana.Example
 {
@@ -23,20 +24,22 @@ namespace AllArt.Solana.Example
         public Button receive_btn;
         public Button logout_btn;
         public Button save_mnemonics_btn;
+        public Button save_private_key_btn;
 
         public List<TokenItem> token_items;
 
         public KnownTokens knownTokens;
         public SimpleScreenManager parentManager;
 
+        private TxtLoader _txtLoader;
         private CancellationTokenSource stopTask;
-        //private SimpleWallet simpleWallet;
-        private string path;
-        private string[] paths;
+
+        private string _mnemonicsFileTitle = "Mnemonics";
+        private string _privateKeyFileTitle = "PrivateKey";
 
         void Start()
         {
-            //simpleWallet = SimpleWallet.instance;
+            _txtLoader = new TxtLoader();
             WebSocketActions.WebSocketAccountSubscriptionAction += (bool istrue) => 
             {
                 MainThreadDispatcher.Instance().Enqueue(() => { UpdateWalletBalanceDisplay(); });
@@ -66,77 +69,73 @@ namespace AllArt.Solana.Example
                     parentManager.ShowScreen(this, "[Connect_Wallet_Screen]");
             });
 
-            save_mnemonics_btn.onClick.AddListener(() =>
+            save_private_key_btn.onClick.AddListener(() => 
             {
-#if UNITY_WEBGL && !UNITY_EDITOR
-                string mnemonic = SimpleWallet.instance.LoadPlayerPrefs(SimpleWallet.instance.MnemonicsKey);
-                if (SimpleWallet.instance.StorageMethodReference == StorageMethod.JSON)
-                {
-                    List<string> mnemonicsList = new List<string>();
-    
-                    string[] splittedStringArray = mnemonic.Split(' ');
-                    foreach (string stringInArray in splittedStringArray)
-                    {
-                        mnemonicsList.Add(stringInArray);
-                    }
-                    MnemonicsModel mnemonicsModel = new MnemonicsModel
-                    {
-                        Mnemonics = mnemonicsList
-                    };
-
-                    //File.WriteAllText(path, JsonConvert.SerializeObject(mnemonicsModel));
-                    var bytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(mnemonicsModel));
-                    DownloadFile(gameObject.name, "OnFileDownload", "sample.txt", bytes, bytes.Length);
-                }
-                else if (SimpleWallet.instance.StorageMethodReference == StorageMethod.SimpleTxt)
-                {
-                    //File.WriteAllText(path, mnemonic);
-                    var bytes = Encoding.UTF8.GetBytes(mnemonic);
-                    DownloadFile(gameObject.name, "OnFileDownload", "mnemonics.txt", bytes, bytes.Length);
-                }
-#elif UNITY_EDITOR || UNITY_EDITOR_WIN || UNITY_STANDALONE
-
-                paths = StandaloneFileBrowser.OpenFilePanel("Title", "", "txt", false);
-                if (paths.Length == 0) return;
-                path = paths[0];
-
-#elif UNITY_ANDROID || UNITY_IPHONE
-                string fileType = NativeFilePicker.ConvertExtensionToFileType("txt");
-                NativeFilePicker.Permission permission = NativeFilePicker.PickFile((path) =>
-                {
-                    if (path == null)
-                        Debug.Log("Operation cancelled");
-                    else
-                    {
-                        this.path = path;
-                    }
-                }, new string[] { fileType });
-#endif
-                string mnem = SimpleWallet.instance.LoadPlayerPrefs(SimpleWallet.instance.MnemonicsKey);
-
-                if (SimpleWallet.instance.StorageMethodReference == StorageMethod.JSON)
-                {
-                    List<string> mnemonicsList = new List<string>();
-
-                    string[] splittedStringArray = mnem.Split(' ');
-                    foreach (string stringInArray in splittedStringArray)
-                    {
-                        mnemonicsList.Add(stringInArray);
-                    }
-                    MnemonicsModel mnemonicsModel = new MnemonicsModel
-                    {
-                        Mnemonics = mnemonicsList
-                    };
-
-                    File.WriteAllText(path, JsonConvert.SerializeObject(mnemonicsModel));
-                }
-                else if (SimpleWallet.instance.StorageMethodReference == StorageMethod.SimpleTxt)
-                {
-                    File.WriteAllText(path, mnem);
-                }
+                _txtLoader.SaveTxt(_privateKeyFileTitle, SimpleWallet.instance.LoadPlayerPrefs(SimpleWallet.instance.PrivateKeyKey), false);
             });
 
+            save_mnemonics_btn.onClick.AddListener(() =>
+            {
+                _txtLoader.SaveTxt(_mnemonicsFileTitle, SimpleWallet.instance.LoadPlayerPrefs(SimpleWallet.instance.MnemonicsKey), false);
+            });
+
+            _txtLoader.TxtSavedAction += SaveMnemonicsOnClick;
+            _txtLoader.TxtSavedAction += SavePrivateKeyOnClick;
+
             stopTask = new CancellationTokenSource();
+        }
+
+        private void SavePrivateKeyOnClick(string path, string key, string fileTitle)
+        {
+            if (!this.gameObject.activeSelf) return;
+            if (fileTitle != _privateKeyFileTitle) return;
+
+            if (path != string.Empty)
+                File.WriteAllText(path, key);
+            else
+            {
+                var bytes = Encoding.UTF8.GetBytes(key);
+                DownloadFile(gameObject.name, "OnFileDownload", "Mnemonics.txt", bytes, bytes.Length);
+            }
+        }
+
+        private void SaveMnemonicsOnClick(string path, string mnemonics, string fileTitle)
+        {
+            if (!this.gameObject.activeSelf) return;
+            if (fileTitle != _mnemonicsFileTitle) return;
+
+            if (SimpleWallet.instance.StorageMethodReference == StorageMethod.JSON)
+            {
+                List<string> mnemonicsList = new List<string>();
+
+                string[] splittedStringArray = mnemonics.Split(' ');
+                foreach (string stringInArray in splittedStringArray)
+                {
+                    mnemonicsList.Add(stringInArray);
+                }
+                MnemonicsModel mnemonicsModel = new MnemonicsModel
+                {
+                    Mnemonics = mnemonicsList
+                };
+
+                if(path != string.Empty)
+                    File.WriteAllText(path, JsonConvert.SerializeObject(mnemonicsModel));
+                else
+                {
+                    var bytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(mnemonicsModel));
+                    DownloadFile(gameObject.name, "OnFileDownload", "Mnemonics.txt", bytes, bytes.Length);
+                }
+            }
+            else if (SimpleWallet.instance.StorageMethodReference == StorageMethod.SimpleTxt)
+            {
+                if(path != string.Empty)
+                    File.WriteAllText(path, mnemonics);
+                else
+                {
+                    var bytes = Encoding.UTF8.GetBytes(mnemonics);
+                    DownloadFile(gameObject.name, "OnFileDownload", "Mnemonics.txt", bytes, bytes.Length);
+                }
+            }
         }
 
         private void TransitionToTransfer(object data = null)

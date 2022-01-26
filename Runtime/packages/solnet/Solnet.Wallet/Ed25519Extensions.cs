@@ -9,12 +9,8 @@ namespace Solnet.Wallet
         /// <param name="seed">The seed</param>
         /// <returns>The key pair.</returns>
         public static (byte[] privateKey, byte[] publicKey) EdKeyPairFromSeed(byte[] seed)
-        {
-            
-            
+        {           
             return  (Ed25519.ExpandedPrivateKeyFromSeed(seed), Ed25519.PublicKeyFromSeed(seed));
         }
-
-
     }
 }

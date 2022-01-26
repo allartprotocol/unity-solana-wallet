@@ -14,7 +14,7 @@ namespace AllArt.Solana.Example
         public readonly string storageMethodStateKey = "StorageMethodKey";
 
         public override void Awake()
-        {
+        {           
             base.Awake();
             if (instance == null)
             {
@@ -28,7 +28,8 @@ namespace AllArt.Solana.Example
 
         private void Start()
         {
-            if(PlayerPrefs.HasKey(storageMethodStateKey))
+            ChangeState(storageMethod.ToString());
+            if (PlayerPrefs.HasKey(storageMethodStateKey))
             {
                 string storageMethodString = LoadPlayerPrefs(storageMethodStateKey);
 
