@@ -146,6 +146,10 @@ Solnet is Solana's .NET SDK to integrate with the .NET ecosystem.  [Solnet](http
 ```
 - For starting RPC connection call StartConnection and forward clientSource.
 - Function returns new connected RPC client.
+- Call example 
+- ```C#
+        StartConnection(clientSource);
+  ```
 
 ## Introduction to WebsocketService.cs
 - This class is located at Packages -> Solana Wallet -> Runtime -> UnityWebSocket -> WebSocketService.cs
