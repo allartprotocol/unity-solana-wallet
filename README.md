@@ -284,8 +284,8 @@ public async Task<RequestResult<string>> TransferToken(string sourceTokenAccount
             sourceAccountOwner.GetPublicKey))
             .Build(sourceAccountOwner);
     }
-     else
-     {
+    else
+    {
         Keypair newAccKeypair = WalletKeyPair.GenerateKeyPairFromMnemonic(WalletKeyPair.GenerateNewMnemonic());
         transaction = new TransactionBuilder().SetRecentBlockHash(blockHash.Result.Value.Blockhash).
             AddInstruction(
@@ -315,6 +315,21 @@ public async Task<RequestResult<string>> TransferToken(string sourceTokenAccount
     return await activeRpcClient.SendTransactionAsync(Convert.ToBase64String(transaction));
 }
  ```
+ - Executes SOL transaction from one account to another one
+ - Call example
+ ```C#
+ private async void TransferToken()
+ {
+     RequestResult<string> result = await SimpleWallet.instance.TransferToken(
+                         transferTokenAccount.pubkey,
+                         toPublic_txt.text,
+                         SimpleWallet.instance.wallet.GetAccount(0),
+                         transferTokenAccount.Account.Data.Parsed.Info.Mint,
+                         long.Parse(ammount_txt.text));
+
+     HandleResponse(result);
+ }
+```
 
 ## Introduction to WebsocketService.cs
 - This class is located at Packages -> Solana Wallet -> Runtime -> UnityWebSocket -> WebSocketService.cs
