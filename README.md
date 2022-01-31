@@ -147,9 +147,44 @@ Solnet is Solana's .NET SDK to integrate with the .NET ecosystem.  [Solnet](http
 - For starting RPC connection call StartConnection and forward clientSource.
 - Function returns new connected RPC client.
 - Call example 
-- ```C#
-  StartConnection(clientSource);
-  ```
+ ```C#
+ StartConnection(clientSource);
+ ```
+  
+### Generate wallet with mnemonics
+```C#
+ public Wallet GenerateWalletWithMenmonic(string mnemonics)
+ {
+     password = LoadPlayerPrefs(passwordKey);
+     try
+     {
+         string mnem = mnemonics;
+         if (!WalletKeyPair.CheckMnemonicValidity(mnem))
+         {
+             return null;
+             throw new Exception("Mnemonic is in incorect format");
+         }
+
+         this.mnemonics = mnemonics;
+         string encryptedMnemonics = cypher.Encrypt(this.mnemonics, password);
+
+         wallet = new Wallet(this.mnemonics, BIP39Wordlist.English);
+         privateKey = wallet.Account.GetPrivateKey;
+
+         webSocketService.SubscribeToWalletAccountEvents(wallet.Account.GetPublicKey);
+
+         SavePlayerPrefs(mnemonicsKey, this.mnemonics);
+         SavePlayerPrefs(encryptedMnemonicsKey, encryptedMnemonics);
+
+         return wallet;
+     }
+     catch(Exception ex)
+     {
+         Debug.Log(ex);
+         return null;
+     }
+ }
+ ```
 
 ## Introduction to WebsocketService.cs
 - This class is located at Packages -> Solana Wallet -> Runtime -> UnityWebSocket -> WebSocketService.cs
