@@ -345,6 +345,30 @@ airdrop_btn.onClick.AddListener(async () => {
             await SimpleWallet.instance.RequestAirdrop(SimpleWallet.instance.wallet.GetAccount(0));
         });
 ```
+### Get owned token accounts
+```C#
+public async Task<TokenAccount[]> GetOwnedTokenAccounts(Account account)
+{
+    try
+    {
+        RequestResult<ResponseValue<TokenAccount[]>> result = await activeRpcClient.GetTokenAccountsByOwnerAsync(account.GetPublicKey, "", TokenProgram.ProgramId);
+        if (result.Result != null && result.Result.Value != null)
+        {
+            return result.Result.Value;
+        }
+    }
+    catch(Exception ex)
+    {
+        Debug.Log(ex);
+    }
+    return null;
+}
+```
+- Returns array of tokens on the account
+- Call example 
+```C#
+ TokenAccount[] result = await SimpleWallet.instance.GetOwnedTokenAccounts(SimpleWallet.instance.wallet.GetAccount(0));
+```
 
 ## Introduction to WebsocketService.cs
 - This class is located at Packages -> Solana Wallet -> Runtime -> UnityWebSocket -> WebSocketService.cs
