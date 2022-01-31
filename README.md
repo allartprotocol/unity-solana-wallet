@@ -328,11 +328,9 @@ Solnet.Wallet.PublicKey metaplexDataPubKey = FindProgramAddress(mint);
 ```
 ### Get metaplex Json data
 ```C#
-public static Nft TryLoadNftFromLocal(string mint)
+public static async Task<T> GetMetaplexJsonData<T>(string jsonUrl)
 ```
-```C#
-public static Nft TryLoadNftFromLocal(string mint)
-```
+- Returns metaplex json data from forwarded jsonUrl
 
 ### Resize
 ```C#
