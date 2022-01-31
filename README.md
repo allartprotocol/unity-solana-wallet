@@ -229,6 +229,22 @@ Solnet is Solana's .NET SDK to integrate with the .NET ecosystem.  [Solnet](http
       }
   }
  ```
+ ### Get sol amount
+  ```C#
+   public async Task<double> GetSolAmmount(Account account)
+   {
+       AccountInfo result = await AccountUtility.GetAccountData(account, activeRpcClient);
+       if (result != null)
+           return (double)result.Lamports / 1000000000;
+       else
+           return 0;
+   }
+ ```
+ - Returns sol amount of forwarded account
+ - Call example 
+  ```C#
+  double sol = await SimpleWallet.instance.GetSolAmmount(SimpleWallet.instance.wallet.GetAccount(0));
+ ```
 
 ## Introduction to WebsocketService.cs
 - This class is located at Packages -> Solana Wallet -> Runtime -> UnityWebSocket -> WebSocketService.cs
