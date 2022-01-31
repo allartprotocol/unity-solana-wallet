@@ -92,7 +92,7 @@ Solnet is Solana's .NET SDK to integrate with the .NET ecosystem.  [Solnet](http
 ### Create account
 ```C#
       public async void CreateAccount(Account account, string toPublicKey = "", long ammount = 1000)
-        {
+      {
             try
             {
                 Keypair keypair = WalletKeyPair.GenerateKeyPairFromMnemonic(WalletKeyPair.GenerateNewMnemonic());
