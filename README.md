@@ -148,7 +148,7 @@ Solnet is Solana's .NET SDK to integrate with the .NET ecosystem.  [Solnet](http
 - Function returns new connected RPC client.
 - Call example 
 - ```C#
-        StartConnection(clientSource);
+  StartConnection(clientSource);
   ```
 
 ## Introduction to WebsocketService.cs
