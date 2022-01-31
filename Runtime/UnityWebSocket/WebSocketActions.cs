@@ -5,15 +5,9 @@ using UnityEngine;
 
 public static class WebSocketActions
 {
+    /// <summary>
+    /// <param bool> if bool is true then subscribe otherwise unsubscribe</param>
+    /// </summary>
     public static Action<bool> WebSocketAccountSubscriptionAction;
     public static Action CloseWebSocketConnectionAction;
-    ///// <summary>
-    ///// param int is subscription id
-    ///// </summary>
-    //public static Action<int> WebSocketAccountSubscriptionAction;
-
-    ///// <summary>
-    ///// param int subscription id
-    ///// </summary>
-    //public static Action<int> WebsocketAccountUnsubscriptionAction;
 }

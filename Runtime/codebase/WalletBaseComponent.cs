@@ -9,7 +9,6 @@ using Solnet.Rpc.Models;
 using Solnet.Wallet;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
@@ -37,7 +36,7 @@ namespace AllArt.Solana
         public static string webSocketMainNetAdress = "ws://api.mainnet-beta.solana.com";
 
         public string customUrl = "http://192.168.0.22:8899";
-        
+
         public enum EClientUrlSource
         {
             EDevnet,
@@ -51,7 +50,7 @@ namespace AllArt.Solana
 
         public SolanaRpcClient activeRpcClient { get; private set; }
 
-        
+
         public virtual void Awake()
         {
             webSocketService = new WebSocketService();
@@ -62,7 +61,6 @@ namespace AllArt.Solana
                 StartConnection(clientSource);
                 webSocketService.StartConnection(GetWebsocketConnectionURL(clientSource));
             }
-            //password = LoadPlayerPrefs(passwordKey);
         }
 
         public void OnDestroy()
@@ -70,6 +68,11 @@ namespace AllArt.Solana
             webSocketService.CloseConnection();
         }
 
+        /// <summary>
+        /// Returns the url of the desired client source
+        /// </summary>
+        /// <param name="clientUrlSource"> Desired client source</param>
+        /// <returns></returns>
         public string GetConnectionURL(EClientUrlSource clientUrlSource)
         {
             string url = "";
@@ -91,6 +94,11 @@ namespace AllArt.Solana
             return url;
         }
 
+        /// <summary>
+        /// Returns the websocket url of the desired client source
+        /// </summary>
+        /// <param name="clientUrlSource"> Desired client source</param>
+        /// <returns></returns>
         public string GetWebsocketConnectionURL(EClientUrlSource clientUrlSource)
         {
             string url = "";
@@ -116,12 +124,18 @@ namespace AllArt.Solana
         public Wallet wallet { get; set; }
         public string mnemonics { get; private set; }
         public string password { get; private set; }
-        public byte[] privateKey { get; private set; }
+        public string privateKey { get; private set; }
 
         [HideInInspector]
         public WebSocketService webSocketService;
         private Cypher cypher;
 
+        /// <summary>
+        /// Creates private and public key with mnemonics, then starts RPC connection and creates Account
+        /// </summary>
+        /// <param name="account">Account to create</param>
+        /// <param name="toPublicKey">Public key of Account</param>
+        /// <param name="ammount">SOL amount</param>
         public async void CreateAccount(Account account, string toPublicKey = "", long ammount = 1000)
         {
             try
@@ -142,12 +156,17 @@ namespace AllArt.Solana
 
                 RequestResult<string> firstSig = await activeRpcClient.SendTransactionAsync(Convert.ToBase64String(transaction));
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Debug.Log(ex);
             }
         }
 
+        /// <summary>
+        /// Returns the account data for the forwarded account
+        /// </summary>
+        /// <param name="account">Forwarded account for which we want to return data</param>
+        /// <returns></returns>
         public async Task<AccountInfo> GetAccountData(Account account)
         {
             RequestResult<ResponseValue<AccountInfo>> result = await activeRpcClient.GetAccountInfoAsync(account.GetPublicKey);
@@ -158,6 +177,13 @@ namespace AllArt.Solana
             return null;
         }
 
+        /// <summary>
+        /// Returns tokens held by the forwarded account
+        /// </summary>
+        /// <param name="walletPubKey">Pub key of the wallet for which we want to return tokens</param>
+        /// <param name="tokenMintPubKey"></param>
+        /// <param name="tokenProgramPublicKey"></param>
+        /// <returns></returns>
         public async Task<TokenAccount[]> GetOwnedTokenAccounts(string walletPubKey, string tokenMintPubKey, string tokenProgramPublicKey)
         {
             RequestResult<ResponseValue<TokenAccount[]>> result = await activeRpcClient.GetTokenAccountsByOwnerAsync(walletPubKey, tokenMintPubKey, tokenProgramPublicKey);
@@ -168,6 +194,13 @@ namespace AllArt.Solana
             return null;
         }
 
+        /// <summary>
+        /// Returns tokens held by the forwarded account
+        /// </summary>
+        /// <param name="walletPubKey">Pub key of the wallet for which we want to return tokens</param>
+        /// <param name="tokenMintPubKey"></param>
+        /// <param name="tokenProgramPublicKey"></param>
+        /// <returns></returns>
         public async Task<TokenAccount[]> GetOwnedTokenAccounts(Account account, string tokenMintPubKey, string tokenProgramPublicKey)
         {
             RequestResult<ResponseValue<TokenAccount[]>> result = await activeRpcClient.GetTokenAccountsByOwnerAsync(
@@ -182,6 +215,12 @@ namespace AllArt.Solana
             return null;
         }
 
+        /// <summary>
+        /// Returns token balance for forwarded token public key
+        /// </summary>
+        /// <param name="tokenPubKey"> Public key token for which we want to return balance</param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         public async Task<TokenBalance> GetTokenBalance(string tokenPubKey)
         {
             RequestResult<ResponseValue<TokenBalance>> result = await activeRpcClient.GetTokenAccountBalanceAsync(tokenPubKey);
@@ -194,12 +233,24 @@ namespace AllArt.Solana
             }
         }
 
+        /// <summary>
+        /// Returns token supply for forwarded token public key
+        /// </summary>
+        /// <param name="tokenPubKey"> Public key token for which we want to return supply</param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         public async Task<RequestResult<ResponseValue<TokenBalance>>> GetTokenSupply(string key)
         {
             RequestResult<ResponseValue<TokenBalance>> supply = await activeRpcClient.GetTokenSupplyAsync(key);
             return supply;
         }
 
+        /// <summary>
+        /// Start RPC connection and return new RPC Client 
+        /// </summary>
+        /// <param name="clientUrlSource">Choosed client source</param>
+        /// <param name="customUrl">Custom url for rpc connection</param>
+        /// <returns></returns>
         public SolanaRpcClient StartConnection(EClientUrlSource clientUrlSource, string customUrl = "")
         {
             if (!string.IsNullOrEmpty(customUrl))
@@ -214,12 +265,17 @@ namespace AllArt.Solana
 
                 return activeRpcClient;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return null;
             }
         }
 
+        /// <summary>
+        /// Creates a wallet of forwarded mnemonics. Decrypts them with a passed password and stores them in memory, then start Websocket connection to Wallet
+        /// </summary>
+        /// <param name="mnemonics">Mnemonics by which we generate a wallet</param>
+        /// <returns></returns>
         public Wallet GenerateWalletWithMenmonic(string mnemonics)
         {
             password = LoadPlayerPrefs(passwordKey);
@@ -236,31 +292,26 @@ namespace AllArt.Solana
                 string encryptedMnemonics = cypher.Encrypt(this.mnemonics, password);
 
                 wallet = new Wallet(this.mnemonics, BIP39Wordlist.English);
+                privateKey = wallet.Account.GetPrivateKey;
 
-                privateKey = wallet.Account.GetByteArayPrivateKey;
                 webSocketService.SubscribeToWalletAccountEvents(wallet.Account.GetPublicKey);
+
                 SavePlayerPrefs(mnemonicsKey, this.mnemonics);
                 SavePlayerPrefs(encryptedMnemonicsKey, encryptedMnemonics);
 
-                string privateKeyString = string.Join(" ", privateKey);
-                SavePlayerPrefs(privateKeyKey, privateKeyString);
-
                 return wallet;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Debug.Log(ex);
                 return null;
             }
         }
 
-        public Wallet GenerateWalletWithPrivateKey(byte[] privateKey)
-        {
-            wallet = new Wallet(privateKey);
-
-            return wallet;
-        }
-
+        /// <summary>
+        /// Recreates a wallet if we have already been logged in and have mnemonics saved in memory
+        /// </summary>
+        /// <returns></returns>
         public bool LoadSavedWallet()
         {
             string mnemonicWords = string.Empty;
@@ -272,10 +323,9 @@ namespace AllArt.Solana
 
                     wallet = new Wallet(mnemonicWords, BIP39Wordlist.English);
                     webSocketService.SubscribeToWalletAccountEvents(wallet.Account.GetPublicKey);
-                    //WebSocketActions.RequestForAccountSubscriptionSentAction?.Invoke(wallet.Account.GetPublicKey);
                     return true;
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     return false;
                 }
@@ -283,6 +333,11 @@ namespace AllArt.Solana
             return false;
         }
 
+        /// <summary>
+        /// At each login tries to decrypt encrypted mnemonics with the entered password
+        /// </summary>
+        /// <param name="password"> Password by which we will try to decrypt the mnemonics</param>
+        /// <returns></returns>
         public bool LoginCheckMnemonicAndPassword(string password)
         {
             try
@@ -291,12 +346,17 @@ namespace AllArt.Solana
                 cypher.Decrypt(encryptedMnemonics, password);
                 return true;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return false;
             }
         }
 
+        /// <summary>
+        /// Returns amount of SOL for Account
+        /// </summary>
+        /// <param name="account">Account for which we want to check the SOL balance</param>
+        /// <returns></returns>
         public async Task<double> GetSolAmmount(Account account)
         {
             AccountInfo result = await AccountUtility.GetAccountData(account, activeRpcClient);
@@ -306,6 +366,12 @@ namespace AllArt.Solana
                 return 0;
         }
 
+        /// <summary>
+        /// Executes a SOL transaction from one account to another
+        /// </summary>
+        /// <param name="fromAccount">The Account from which we perform the transaction</param>
+        /// <param name="toPublicKey">The Account on which we perform the transaction</param>
+        /// <param name="ammount">Ammount of sol</param>
         public async void TransferSol(Account fromAccount, string toPublicKey, long ammount = 10000000)
         {
             RequestResult<ResponseValue<BlockHash>> blockHash = await activeRpcClient.GetRecentBlockHashAsync();
@@ -316,6 +382,15 @@ namespace AllArt.Solana
             RequestResult<string> firstSig = await activeRpcClient.SendTransactionAsync(Convert.ToBase64String(transaction));
         }
 
+        /// <summary>
+        /// Executes a token transaction on the desired wallet
+        /// </summary>
+        /// <param name="sourceTokenAccount">Pub Key of the wallet from which we make the transaction</param>
+        /// <param name="toWalletAccount">The Pub Key of the wallet to which we want to make a transaction</param>
+        /// <param name="sourceAccountOwner">The Account from which we send tokens</param>
+        /// <param name="tokenMint"></param>
+        /// <param name="ammount">Ammount of tokens we want to send</param>
+        /// <returns></returns>
         public async Task<RequestResult<string>> TransferToken(string sourceTokenAccount, string toWalletAccount, Account sourceAccountOwner, string tokenMint, long ammount = 1)
         {
             RequestResult<ResponseValue<BlockHash>> blockHash = await activeRpcClient.GetRecentBlockHashAsync();
@@ -362,6 +437,12 @@ namespace AllArt.Solana
             return await activeRpcClient.SendTransactionAsync(Convert.ToBase64String(transaction));
         }
 
+        /// <summary>
+        /// The key of the account on which we want to execute the transaction
+        /// </summary>
+        /// <param name="toPublicKey"> Public key of wallet on which we want to execute the transaction </param>
+        /// <param name="ammount"> Ammount of sol we want to send</param>
+        /// <returns></returns>
         public async Task<RequestResult<string>> TransferSol(string toPublicKey, long ammount = 10000000)
         {
             RequestResult<ResponseValue<BlockHash>> blockHash = await activeRpcClient.GetRecentBlockHashAsync();
@@ -373,12 +454,23 @@ namespace AllArt.Solana
             return await activeRpcClient.SendTransactionAsync(Convert.ToBase64String(transaction));
         }
 
+        /// <summary>
+        /// Airdrop sol on wallet
+        /// </summary>
+        /// <param name="account">Account to which send sol</param>
+        /// <param name="ammount">Amount of sol</param>
+        /// <returns>Amount of sol</returns>
         public async Task<string> RequestAirdrop(Account account, ulong ammount = 1000000000)
         {
             var result = await activeRpcClient.RequestAirdropAsync(account.GetPublicKey, ammount);
             return result.Result;
         }
 
+        /// <summary>
+        /// Returns an array of tokens on the account
+        /// </summary>
+        /// <param name="account">The account for which we are requesting tokens</param>
+        /// <returns>Array of tokens</returns>
         public async Task<TokenAccount[]> GetOwnedTokenAccounts(Account account)
         {
             try
@@ -389,20 +481,25 @@ namespace AllArt.Solana
                     return result.Result.Value;
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-
+                Debug.Log(ex);
             }
             return null;
         }
 
+        /// <summary>
+        /// It disconnects the websocket connection and deletes the wallet we were logged into
+        /// </summary>
         public void DeleteWalletAndClearKey()
         {
             webSocketService.UnSubscribeToWalletAccountEvents();
-            //PlayerPrefs.DeleteKey(mnemonicsKey);
             wallet = null;
         }
 
+        /// <summary>
+        /// A function that automatically initiates a websocket connection to the wallet when we log in
+        /// </summary>
         public void StartWebSocketConnection()
         {
             if (webSocketService.Socket != null) return;

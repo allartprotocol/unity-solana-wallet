@@ -60,6 +60,13 @@ namespace AllArt.Solana.Nft
             return null;
         }
 
+        /// <summary>
+        /// Returns all data for listed nft
+        /// </summary>
+        /// <param name="mint"></param>
+        /// <param name="connection">Rpc client</param>
+        /// <param name="tryUseLocalContent">If use local content for image</param>
+        /// <returns></returns>
         public static async Task<Nft> TryGetNftData(string mint, SolanaRpcClient connection, bool tryUseLocalContent = true)
         {
             Solnet.Wallet.PublicKey metaplexDataPubKey = FindProgramAddress(mint);
@@ -105,6 +112,11 @@ namespace AllArt.Solana.Nft
             return null;
         }
 
+        /// <summary>
+        /// Returns Nft from local machine if it exists
+        /// </summary>
+        /// <param name="mint"></param>
+        /// <returns></returns>
         public static Nft TryLoadNftFromLocal(string mint)
         {
             Nft local = FileLoader.LoadFileFromLocalPath<Nft>($"{Path.Combine(Application.persistentDataPath, mint)}.json");
@@ -126,6 +138,13 @@ namespace AllArt.Solana.Nft
             return local;
         }
 
+        /// <summary>
+        /// Returns public key of nft
+        /// </summary>
+        /// <param name="seed"></param>
+        /// <param name="programId"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         public static Solnet.Wallet.PublicKey CreateAddress(List<byte[]> seed, string programId)
         {
             List<byte> buffer = new List<byte>();
@@ -156,6 +175,12 @@ namespace AllArt.Solana.Nft
             return publicKey;
         }
 
+        /// <summary>
+        /// Returns metaplex data pubkey from mint pubkey and programId
+        /// </summary>
+        /// <param name="mintPublicKey"></param>
+        /// <param name="programId"></param>
+        /// <returns></returns>
         public static Solnet.Wallet.PublicKey FindProgramAddress(string mintPublicKey, string programId = "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s")
         {
             List<byte[]> seeds = new List<byte[]>();
@@ -186,6 +211,9 @@ namespace AllArt.Solana.Nft
             return publicKey;
         }
 
+        /// <summary>
+        /// Returns metaplex json data from forwarded jsonUrl
+        /// </summary>
         public static async Task<T> GetMetaplexJsonData<T>(string jsonUrl)
         {
             HttpClient client = new HttpClient();
@@ -208,6 +236,13 @@ namespace AllArt.Solana.Nft
                 throw;
             }
         }
+        /// <summary>
+        /// Resize great textures to small, because of performance
+        /// </summary>
+        /// <param name="texture2D"> Texture to resize</param>
+        /// <param name="targetX"> Target width</param>
+        /// <param name="targetY"> Target height</param>
+        /// <returns></returns>
         private static Texture2D Resize(Texture2D texture2D, int targetX, int targetY)
         {
             RenderTexture rt = new RenderTexture(targetX, targetY, 24);

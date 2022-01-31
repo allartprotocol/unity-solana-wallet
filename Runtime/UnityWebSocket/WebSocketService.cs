@@ -13,6 +13,11 @@ public class WebSocketService : MonoBehaviour
     private IWebSocket _socket;
 
     public IWebSocket Socket => _socket;
+
+    /// <summary>
+    /// Starts a websocket connection to the forwarded address
+    /// </summary>
+    /// <param name="address">The address to which we will start the connection</param>
     public void StartConnection(string address)
     {
         _socket = new WebSocket(address);
@@ -23,6 +28,9 @@ public class WebSocketService : MonoBehaviour
         _socket.ConnectAsync();
     }
 
+    /// <summary>
+    /// Close opened connection
+    /// </summary>
     public void CloseConnection()
     {
         if (_socket == null) return;
@@ -30,6 +38,10 @@ public class WebSocketService : MonoBehaviour
         _socket.CloseAsync();
     }
 
+    /// <summary>
+    /// Subscribes wallet to websocket events
+    /// </summary>
+    /// <param name="pubKey">Pub key of the wallet which want to subscribe to websocket wvents</param>
     public void SubscribeToWalletAccountEvents(string pubKey)
     {
         if (_socket is null) return;
@@ -38,6 +50,9 @@ public class WebSocketService : MonoBehaviour
         SendParameter(ReturnSubscribeParameter(pubKey));
     }
 
+    /// <summary>
+    /// Unsubscribes wallet from websocket events
+    /// </summary>
     public void UnSubscribeToWalletAccountEvents()
     {
         if (_socket is null) return;
@@ -48,24 +63,45 @@ public class WebSocketService : MonoBehaviour
         _subscriptionModel = null;
     }
 
+    /// <summary>
+    /// Returns error if it happens
+    /// </summary>
+    /// <param name="sender">Sender object</param>
+    /// <param name="e">Received message arguments</param>
     private void OnError(object sender, ErrorEventArgs e)
     {
         //todo
     }
 
+    /// <summary>
+    /// Returns message that connection is opened
+    /// </summary>
+    /// <param name="sender">Sender object</param>
+    /// <param name="e">Received message arguments</param>
     private void OnOpen(object sender, OpenEventArgs e)
     {
         //todo
     }
 
+    /// <summary>
+    /// Returns message that connection is closed
+    /// </summary>
+    /// <param name="sender">Sender object</param>
+    /// <param name="e">Received message arguments</param>
     private void OnClose(object sender, CloseEventArgs e)
     {
         _subscriptionModel = null;
         _socket = null;
         _subscriptionTypeReference = SubscriptionType.NONE;
-        MainThreadDispatcher.Instance().Enqueue(() => { WebSocketActions.CloseWebSocketConnectionAction?.Invoke(); });      
+        MainThreadDispatcher.Instance().Enqueue(() => { WebSocketActions.CloseWebSocketConnectionAction?.Invoke(); });
     }
 
+    /// <summary>
+    /// Function that is called when a message is received from a websocket.
+    /// In our case it was done only for account subscription and unsubscription.function needs to be expanded
+    /// </summary>
+    /// <param name="sender">Sender object</param>
+    /// <param name="e">Received message arguments</param>
     private void OnMessage(object sender, MessageEventArgs e)
     {
         switch (_subscriptionTypeReference)
@@ -95,6 +131,10 @@ public class WebSocketService : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Function by which we async send a parameter to the websocket
+    /// </summary>
+    /// <param name="parameter">Parameter to send to websocket</param>
     private void SendParameter(string parameter)
     {
         if (_socket == null) return;
@@ -102,6 +142,11 @@ public class WebSocketService : MonoBehaviour
         _socket.SendAsync(parameter);
     }
 
+    /// <summary>
+    /// Returns JSONRPC message for account subscription
+    /// </summary>
+    /// <param name="pubkey">Pub key of account with which we want to subscribe to the websocket</param>
+    /// <returns></returns>
     private string ReturnSubscribeParameter(string pubkey)
     {
         if (_socket is null) return null;
@@ -110,6 +155,11 @@ public class WebSocketService : MonoBehaviour
         return parameterToSend;
     }
 
+    /// <summary>
+    /// Returns JSONRPC message for account unsubscription
+    /// </summary>
+    /// <param name="pubkey">Pub key of account with which we want to unsubscribe from the websocket</param>
+    /// <returns></returns>
     private string ReturnUnsubscribeParameter()
     {
         if (_socket is null) return null;
