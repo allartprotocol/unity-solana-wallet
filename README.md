@@ -91,7 +91,7 @@ Solnet is Solana's .NET SDK to integrate with the .NET ecosystem.  [Solnet](http
 
 ### Create account
 ```C#
-      public async void CreateAccount(Account account, string toPublicKey = "", long ammount = 1000)
+public async void CreateAccount(Account account, string toPublicKey = "", long ammount = 1000)
 ```
 - First create keypair(private key and public key),
 - Then create blockHash from activeRpcClient,
@@ -100,7 +100,7 @@ Solnet is Solana's .NET SDK to integrate with the .NET ecosystem.  [Solnet](http
 
 ### Start connection
 ```C#
-        public SolanaRpcClient StartConnection(EClientUrlSource clientUrlSource, string customUrl = "")
+public SolanaRpcClient StartConnection(EClientUrlSource clientUrlSource, string customUrl = "")
 ```
 - For starting RPC connection call StartConnection and forward clientSource.
 - Function returns new connected RPC client.
