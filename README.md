@@ -89,6 +89,35 @@ Solnet is Solana's .NET SDK to integrate with the .NET ecosystem.  [Solnet](http
 ## Introduction to WalletBaseComponent.cs
 - This class is located at Packages -> Solana Wallet -> Runtime -> codebase -> WalletBaseComponent.cs
 
+### Create account
+```C#
+      public async void CreateAccount(Account account, string toPublicKey = "", long ammount = 1000)
+        {
+            try
+            {
+                Keypair keypair = WalletKeyPair.GenerateKeyPairFromMnemonic(WalletKeyPair.GenerateNewMnemonic());
+
+                toPublicKey = keypair.publicKey;
+
+                RequestResult<ResponseValue<BlockHash>> blockHash = await activeRpcClient.GetRecentBlockHashAsync();
+
+                var transaction = new TransactionBuilder().SetRecentBlockHash(blockHash.Result.Value.Blockhash).
+                    AddInstruction(SystemProgram.CreateAccount(account.GetPublicKey, toPublicKey, ammount,
+                    (long)SystemProgram.AccountDataSize, SystemProgram.ProgramId))
+                    .Build(new List<Account>() {
+                    account,
+                    new Account(keypair.privateKeyByte, keypair.publicKeyByte)
+                    });
+
+                RequestResult<string> firstSig = await activeRpcClient.SendTransactionAsync(Convert.ToBase64String(transaction));
+            }
+            catch(Exception ex)
+            {
+                Debug.Log(ex);
+            }
+        }
+```
+
 ## Introduction to WebsocketService.cs
 - This class is located at Packages -> Solana Wallet -> Runtime -> UnityWebSocket -> WebSocketService.cs
 ### For WebSocket to work we must first create a connection calling StartConnection from WebSocketService.cs and forward address :
