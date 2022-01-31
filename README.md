@@ -122,18 +122,30 @@ Solnet is Solana's .NET SDK to integrate with the .NET ecosystem.  [Solnet](http
 - Initialize transaction 
 - Send transaction
 
-### GetAccountData
+### Start connection
 ```C#
-      public async Task<AccountInfo> GetAccountData(Account account)
-      {
-          RequestResult<ResponseValue<AccountInfo>> result = await activeRpcClient.GetAccountInfoAsync(account.GetPublicKey);
-          if (result.Result != null && result.Result.Value != null)
-          {
-              return result.Result.Value;
-          }
-          return null;
-      }
+        public SolanaRpcClient StartConnection(EClientUrlSource clientUrlSource, string customUrl = "")
+        {
+            if (!string.IsNullOrEmpty(customUrl))
+                this.customUrl = customUrl;
+
+            try
+            {
+                if (activeRpcClient == null)
+                {
+                    activeRpcClient = new SolanaRpcClient(GetConnectionURL(clientUrlSource));
+                }
+
+                return activeRpcClient;
+            }
+            catch(Exception ex)
+            {
+                return null;
+            }
+        }
 ```
+- For starting RPC connection call StartConnection and forward clientSource.
+- Function returns new connected RPC client.
 
 ## Introduction to WebsocketService.cs
 - This class is located at Packages -> Solana Wallet -> Runtime -> UnityWebSocket -> WebSocketService.cs
