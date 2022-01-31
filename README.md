@@ -369,6 +369,27 @@ public async Task<TokenAccount[]> GetOwnedTokenAccounts(Account account)
 ```C#
  TokenAccount[] result = await SimpleWallet.instance.GetOwnedTokenAccounts(SimpleWallet.instance.wallet.GetAccount(0));
 ```
+### Delete wallet and clear key
+```C#
+public void DeleteWalletAndClearKey()
+{
+    webSocketService.UnSubscribeToWalletAccountEvents();
+    wallet = null;
+}
+```
+- Unsubscribe from WebSocket events
+- Delete used wallet
+
+### Start WebSocket connection
+```C#
+  public void StartWebSocketConnection()
+  {
+      if (webSocketService.Socket != null) return;
+
+      webSocketService.StartConnection(GetWebsocketConnectionURL(clientSource));
+  }
+```
+- Starts WebSocket connection when user is logged in.
 
 ## Introduction to WebsocketService.cs
 - This class is located at Packages -> Solana Wallet -> Runtime -> UnityWebSocket -> WebSocketService.cs
