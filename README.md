@@ -117,6 +117,10 @@ Solnet is Solana's .NET SDK to integrate with the .NET ecosystem.  [Solnet](http
             }
         }
 ```
+- First create keypair(private key and public key),
+- Then create blockHash from activeRpcClient,
+- Initialize transaction 
+- Send transaction
 
 ## Introduction to WebsocketService.cs
 - This class is located at Packages -> Solana Wallet -> Runtime -> UnityWebSocket -> WebSocketService.cs
