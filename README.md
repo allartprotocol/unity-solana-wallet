@@ -221,29 +221,32 @@ public void StartWebSocketConnection()
 
 ## Introduction to WebsocketService.cs
 - This class is located at Packages -> Solana Wallet -> Runtime -> UnityWebSocket -> WebSocketService.cs
-### For WebSocket to work we must first create a connection calling StartConnection from WebSocketService.cs and forward address :
+### Start connection
 ```C#
 public void StartConnection(string address)
 ```
+- For WebSocket to work we must first create a connection calling StartConnection from WebSocketService.cs and forward address
 - In this function we create new WebSocket, then subscribe to events and open WebSocket connection.
 - Call example
 ```C#
  webSocketService.StartConnection(GetWebsocketConnectionURL(clientSource));
 ```
-### To subscribe Account on WebSocket events call function SubscribeToWalletAccountEvents and forward Wallet Pub key :
+### Subscribe to wallet account events
 ```C#
  public void SubscribeToWalletAccountEvents(string pubKey)
 ```
+- To subscribe Account on WebSocket events call function SubscribeToWalletAccountEvents and forward Wallet Pub key
 - First set subscriptionTypeReference to know which event we are processing (in this case it is accountSubscribe).
 - Then call SendParameter and forward parameter for account subscription.
 - Call example 
 ```C#
  webSocketService.SubscribeToWalletAccountEvents(wallet.Account.GetPublicKey);
 ```
-### To unsubscribe Account from WebSocket events call function UnsubscribeToWalletAccountEvents :
+### Unsubscribe to wallet account events
 ```C#
  public void UnSubscribeToWalletAccountEvents()
 ```
+- To unsubscribe Account from WebSocket events call function UnsubscribeToWalletAccountEvents
 - First set subscriptionTypeReference to know which event we are processing (in this case it is accountUnsubscribe).
 - Then call SendParameter and forward parameter for account unsubscription.
 - Call example 
@@ -255,10 +258,11 @@ public void StartConnection(string address)
      webSocketService.StartConnection(GetWebsocketConnectionURL(clientSource));
  }
 ```
-### To respond to websocket events we use WebSocket actions that we call in OnMessage function : 
+### On Message
  ```C#
  private void OnMessage(object sender, MessageEventArgs e)
 ```
+- To respond to websocket events we use WebSocket actions that we call in OnMessage function
 - Depending on the SubscriptionTypeReference, we deserialize the message into a model.
 - Invoke WebSocketAction
 - Then subscribe the desired functionality to the action
@@ -266,7 +270,7 @@ public void StartConnection(string address)
  WebSocketActions.WebSocketAccountSubscriptionAction += CheckSubscription;
 ```
 
-### To close WebSocket connection call CloseConnection :
+### Close connection
 ```C#
  public void CloseConnection()
  {
@@ -275,6 +279,8 @@ public void StartConnection(string address)
      _socket.CloseAsync();
  }
 ```
+-To close WebSocket connection call CloseConnection from WebSocketService.cs
+
 ## Introduction to Nft.cs
 - This class is located at Packages -> Solana Wallet -> Runtime -> codebase -> nft -> Nft.cs
 ### Try get nft data
