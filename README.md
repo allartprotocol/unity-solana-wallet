@@ -247,20 +247,73 @@ Solnet is Solana's .NET SDK to integrate with the .NET ecosystem.  [Solnet](http
  ```
  ### Transfer sol
  ```C#
- public async void TransferSol(Account fromAccount, string toPublicKey, long ammount = 10000000)
+ public async Task<RequestResult<string>> TransferSol(string toPublicKey, long ammount = 10000000)
  {
      RequestResult<ResponseValue<BlockHash>> blockHash = await activeRpcClient.GetRecentBlockHashAsync();
+     Account fromAccount = wallet.GetAccount(0);
 
      var transaction = new TransactionBuilder().SetRecentBlockHash(blockHash.Result.Value.Blockhash).
          AddInstruction(SystemProgram.Transfer(fromAccount.GetPublicKey, toPublicKey, ammount)).Build(fromAccount);
 
-     RequestResult<string> firstSig = await activeRpcClient.SendTransactionAsync(Convert.ToBase64String(transaction));
- }
+     return await activeRpcClient.SendTransactionAsync(Convert.ToBase64String(transaction));
+        }
  ```
  - Executes sol transaction from one account to another one for forwarded amount.
  - Call example 
  ```C#
- TransferSol(myAccount, pubKeyToSend, ammount)
+ private async void TransferSol()
+ {
+     RequestResult<string> result = await SimpleWallet.instance.TransferSol(toPublic_txt.text, long.Parse(ammount_txt.text));
+     HandleResponse(result);
+ }
+ ```
+ ### Transfer token
+ ```C#
+public async Task<RequestResult<string>> TransferToken(string sourceTokenAccount, string toWalletAccount, Account sourceAccountOwner, string tokenMint, long ammount = 1)
+{
+    RequestResult<ResponseValue<BlockHash>> blockHash = await activeRpcClient.GetRecentBlockHashAsync();
+    RequestResult<ulong> rentExemptionAmmount = await activeRpcClient.GetMinimumBalanceForRentExemptionAsync(SystemProgram.AccountDataSize);
+    TokenAccount[] lortAccounts = await GetOwnedTokenAccounts(toWalletAccount, tokenMint, "");
+    byte[] transaction;
+    if (lortAccounts != null && lortAccounts.Length > 0)
+    {
+        transaction = new TransactionBuilder().SetRecentBlockHash(blockHash.Result.Value.Blockhash).
+            AddInstruction(TokenProgram.Transfer(sourceTokenAccount,
+            lortAccounts[0].pubkey,
+            ammount,
+            sourceAccountOwner.GetPublicKey))
+            .Build(sourceAccountOwner);
+    }
+     else
+     {
+        Keypair newAccKeypair = WalletKeyPair.GenerateKeyPairFromMnemonic(WalletKeyPair.GenerateNewMnemonic());
+        transaction = new TransactionBuilder().SetRecentBlockHash(blockHash.Result.Value.Blockhash).
+            AddInstruction(
+            SystemProgram.CreateAccount(
+                sourceAccountOwner.GetPublicKey,
+                newAccKeypair.publicKey,
+                (long)rentExemptionAmmount.Result,
+                SystemProgram.AccountDataSize,
+                TokenProgram.ProgramId)).
+                AddInstruction(
+                TokenProgram.InitializeAccount(
+                   newAccKeypair.publicKey,
+                   tokenMint,
+                   toWalletAccount)).
+                AddInstruction(TokenProgram.Transfer(sourceTokenAccount,
+                    newAccKeypair.publicKey,
+                    ammount,
+                    sourceAccountOwner.GetPublicKey))
+                .Build(new List<Account>()
+                {
+                    sourceAccountOwner,
+                    new Account(newAccKeypair.privateKeyByte,
+                    newAccKeypair.publicKeyByte)
+                });
+    }
+
+    return await activeRpcClient.SendTransactionAsync(Convert.ToBase64String(transaction));
+}
  ```
 
 ## Introduction to WebsocketService.cs
