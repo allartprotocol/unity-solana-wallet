@@ -194,6 +194,41 @@ Solnet is Solana's .NET SDK to integrate with the .NET ecosystem.  [Solnet](http
  ```C#
  SimpleWallet.instance.GenerateWalletWithMenmonic(_simpleWallet.LoadPlayerPrefs(_simpleWallet.MnemonicsKey));
  ```
+### Login check with mnemonics and password
+ ```C#
+  public bool LoginCheckMnemonicAndPassword(string password)
+  {
+      try
+      {
+          string encryptedMnemonics = LoadPlayerPrefs(encryptedMnemonicsKey);
+          cypher.Decrypt(encryptedMnemonics, password);
+          return true;
+      }
+      catch(Exception ex)
+      {
+          return false;
+      }
+  }
+ ```
+ - Try to encrypt decrypted mnemonics with typed password.
+ - Return true or false
+ - Call example 
+  ```C#
+  private void LoginChecker()
+  {
+      if (_simpleWallet.LoginCheckMnemonicAndPassword(_passwordInputField.text))
+      {
+          SimpleWallet.instance.GenerateWalletWithMenmonic(_simpleWallet.LoadPlayerPrefs(_simpleWallet.MnemonicsKey));
+          MainThreadDispatcher.Instance().Enqueue(() => { _simpleWallet.StartWebSocketConnection(); }); 
+          manager.ShowScreen(this, "wallet_screen");
+          this.gameObject.SetActive(false);
+      }
+      else
+      {
+          SwitchButtons("TryAgain");
+      }
+  }
+ ```
 
 ## Introduction to WebsocketService.cs
 - This class is located at Packages -> Solana Wallet -> Runtime -> UnityWebSocket -> WebSocketService.cs
