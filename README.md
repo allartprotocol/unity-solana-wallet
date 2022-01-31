@@ -275,6 +275,33 @@ public void StartConnection(string address)
      _socket.CloseAsync();
  }
 ```
+## Nft.cs
+- This class is located at Packages -> Solana Wallet -> Runtime -> codebase -> nft -> Nft.cs
+### Try get nft data
+```C#
+public static async Task<Nft> TryGetNftData(string mint, SolanaRpcClient connection, bool tryUseLocalContent = true)
+```
+- Returns all data for one NFT and save file to persistance data path
+- Call example 
+```C#
+Nft.Nft nft = await Nft.Nft.TryGetNftData(item.Account.Data.Parsed.Info.Mint, SimpleWallet.instance.activeRpcClient, true);
+```
+### Try load nft from local
+```C#
+public static Nft TryLoadNftFromLocal(string mint)
+```
+- Returns nft data from local machine if it exists.
+- Call example
+```C#
+if (tryUseLocalContent)
+{ 
+    Nft nft = TryLoadNftFromLocal(mint);
+    if (nft != null)
+    {
+        return nft;
+    }
+}
+```
 
 ## License
 
