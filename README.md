@@ -330,6 +330,21 @@ public async Task<RequestResult<string>> TransferToken(string sourceTokenAccount
      HandleResponse(result);
  }
 ```
+### Request airdrop
+```C#
+public async Task<string> RequestAirdrop(Account account, ulong ammount = 1000000000)
+{
+   var result = await activeRpcClient.RequestAirdropAsync(account.GetPublicKey, ammount);
+   return result.Result;
+}
+```
+- Send 1 sol to our wallet (this is for testing).
+- Call example
+```C#
+airdrop_btn.onClick.AddListener(async () => {
+            await SimpleWallet.instance.RequestAirdrop(SimpleWallet.instance.wallet.GetAccount(0));
+        });
+```
 
 ## Introduction to WebsocketService.cs
 - This class is located at Packages -> Solana Wallet -> Runtime -> UnityWebSocket -> WebSocketService.cs
