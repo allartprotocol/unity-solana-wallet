@@ -92,30 +92,6 @@ Solnet is Solana's .NET SDK to integrate with the .NET ecosystem.  [Solnet](http
 ### Create account
 ```C#
       public async void CreateAccount(Account account, string toPublicKey = "", long ammount = 1000)
-      {
-            try
-            {
-                Keypair keypair = WalletKeyPair.GenerateKeyPairFromMnemonic(WalletKeyPair.GenerateNewMnemonic());
-
-                toPublicKey = keypair.publicKey;
-
-                RequestResult<ResponseValue<BlockHash>> blockHash = await activeRpcClient.GetRecentBlockHashAsync();
-
-                var transaction = new TransactionBuilder().SetRecentBlockHash(blockHash.Result.Value.Blockhash).
-                    AddInstruction(SystemProgram.CreateAccount(account.GetPublicKey, toPublicKey, ammount,
-                    (long)SystemProgram.AccountDataSize, SystemProgram.ProgramId))
-                    .Build(new List<Account>() {
-                    account,
-                    new Account(keypair.privateKeyByte, keypair.publicKeyByte)
-                    });
-
-                RequestResult<string> firstSig = await activeRpcClient.SendTransactionAsync(Convert.ToBase64String(transaction));
-            }
-            catch(Exception ex)
-            {
-                Debug.Log(ex);
-            }
-        }
 ```
 - First create keypair(private key and public key),
 - Then create blockHash from activeRpcClient,
@@ -125,24 +101,6 @@ Solnet is Solana's .NET SDK to integrate with the .NET ecosystem.  [Solnet](http
 ### Start connection
 ```C#
         public SolanaRpcClient StartConnection(EClientUrlSource clientUrlSource, string customUrl = "")
-        {
-            if (!string.IsNullOrEmpty(customUrl))
-                this.customUrl = customUrl;
-
-            try
-            {
-                if (activeRpcClient == null)
-                {
-                    activeRpcClient = new SolanaRpcClient(GetConnectionURL(clientUrlSource));
-                }
-
-                return activeRpcClient;
-            }
-            catch(Exception ex)
-            {
-                return null;
-            }
-        }
 ```
 - For starting RPC connection call StartConnection and forward clientSource.
 - Function returns new connected RPC client.
@@ -154,36 +112,6 @@ Solnet is Solana's .NET SDK to integrate with the .NET ecosystem.  [Solnet](http
 ### Generate wallet with mnemonics
 ```C#
  public Wallet GenerateWalletWithMenmonic(string mnemonics)
- {
-     password = LoadPlayerPrefs(passwordKey);
-     try
-     {
-         string mnem = mnemonics;
-         if (!WalletKeyPair.CheckMnemonicValidity(mnem))
-         {
-             return null;
-             throw new Exception("Mnemonic is in incorect format");
-         }
-
-         this.mnemonics = mnemonics;
-         string encryptedMnemonics = cypher.Encrypt(this.mnemonics, password);
-
-         wallet = new Wallet(this.mnemonics, BIP39Wordlist.English);
-         privateKey = wallet.Account.GetPrivateKey;
-
-         webSocketService.SubscribeToWalletAccountEvents(wallet.Account.GetPublicKey);
-
-         SavePlayerPrefs(mnemonicsKey, this.mnemonics);
-         SavePlayerPrefs(encryptedMnemonicsKey, encryptedMnemonics);
-
-         return wallet;
-     }
-     catch(Exception ex)
-     {
-         Debug.Log(ex);
-         return null;
-     }
- }
  ```
  - First check forwarded mnemonics validity.
  - Encrypt mnemonics with password
@@ -197,18 +125,6 @@ Solnet is Solana's .NET SDK to integrate with the .NET ecosystem.  [Solnet](http
 ### Login check with mnemonics and password
  ```C#
   public bool LoginCheckMnemonicAndPassword(string password)
-  {
-      try
-      {
-          string encryptedMnemonics = LoadPlayerPrefs(encryptedMnemonicsKey);
-          cypher.Decrypt(encryptedMnemonics, password);
-          return true;
-      }
-      catch(Exception ex)
-      {
-          return false;
-      }
-  }
  ```
  - Try to encrypt decrypted mnemonics with typed password.
  - Return true or false
@@ -232,13 +148,6 @@ Solnet is Solana's .NET SDK to integrate with the .NET ecosystem.  [Solnet](http
  ### Get sol amount
   ```C#
    public async Task<double> GetSolAmmount(Account account)
-   {
-       AccountInfo result = await AccountUtility.GetAccountData(account, activeRpcClient);
-       if (result != null)
-           return (double)result.Lamports / 1000000000;
-       else
-           return 0;
-   }
  ```
  - Returns sol amount of forwarded account
  - Call example 
@@ -248,15 +157,6 @@ Solnet is Solana's .NET SDK to integrate with the .NET ecosystem.  [Solnet](http
  ### Transfer sol
  ```C#
  public async Task<RequestResult<string>> TransferSol(string toPublicKey, long ammount = 10000000)
- {
-     RequestResult<ResponseValue<BlockHash>> blockHash = await activeRpcClient.GetRecentBlockHashAsync();
-     Account fromAccount = wallet.GetAccount(0);
-
-     var transaction = new TransactionBuilder().SetRecentBlockHash(blockHash.Result.Value.Blockhash).
-         AddInstruction(SystemProgram.Transfer(fromAccount.GetPublicKey, toPublicKey, ammount)).Build(fromAccount);
-
-     return await activeRpcClient.SendTransactionAsync(Convert.ToBase64String(transaction));
-        }
  ```
  - Executes sol transaction from one account to another one for forwarded amount.
  - Call example 
@@ -270,50 +170,6 @@ Solnet is Solana's .NET SDK to integrate with the .NET ecosystem.  [Solnet](http
  ### Transfer token
  ```C#
 public async Task<RequestResult<string>> TransferToken(string sourceTokenAccount, string toWalletAccount, Account sourceAccountOwner, string tokenMint, long ammount = 1)
-{
-    RequestResult<ResponseValue<BlockHash>> blockHash = await activeRpcClient.GetRecentBlockHashAsync();
-    RequestResult<ulong> rentExemptionAmmount = await activeRpcClient.GetMinimumBalanceForRentExemptionAsync(SystemProgram.AccountDataSize);
-    TokenAccount[] lortAccounts = await GetOwnedTokenAccounts(toWalletAccount, tokenMint, "");
-    byte[] transaction;
-    if (lortAccounts != null && lortAccounts.Length > 0)
-    {
-        transaction = new TransactionBuilder().SetRecentBlockHash(blockHash.Result.Value.Blockhash).
-            AddInstruction(TokenProgram.Transfer(sourceTokenAccount,
-            lortAccounts[0].pubkey,
-            ammount,
-            sourceAccountOwner.GetPublicKey))
-            .Build(sourceAccountOwner);
-    }
-    else
-    {
-        Keypair newAccKeypair = WalletKeyPair.GenerateKeyPairFromMnemonic(WalletKeyPair.GenerateNewMnemonic());
-        transaction = new TransactionBuilder().SetRecentBlockHash(blockHash.Result.Value.Blockhash).
-            AddInstruction(
-            SystemProgram.CreateAccount(
-                sourceAccountOwner.GetPublicKey,
-                newAccKeypair.publicKey,
-                (long)rentExemptionAmmount.Result,
-                SystemProgram.AccountDataSize,
-                TokenProgram.ProgramId)).
-                AddInstruction(
-                TokenProgram.InitializeAccount(
-                   newAccKeypair.publicKey,
-                   tokenMint,
-                   toWalletAccount)).
-                AddInstruction(TokenProgram.Transfer(sourceTokenAccount,
-                    newAccKeypair.publicKey,
-                    ammount,
-                    sourceAccountOwner.GetPublicKey))
-                .Build(new List<Account>()
-                {
-                    sourceAccountOwner,
-                    new Account(newAccKeypair.privateKeyByte,
-                    newAccKeypair.publicKeyByte)
-                });
-    }
-
-    return await activeRpcClient.SendTransactionAsync(Convert.ToBase64String(transaction));
-}
  ```
  - Executes SOL transaction from one account to another one
  - Call example
@@ -333,10 +189,6 @@ public async Task<RequestResult<string>> TransferToken(string sourceTokenAccount
 ### Request airdrop
 ```C#
 public async Task<string> RequestAirdrop(Account account, ulong ammount = 1000000000)
-{
-   var result = await activeRpcClient.RequestAirdropAsync(account.GetPublicKey, ammount);
-   return result.Result;
-}
 ```
 - Send 1 sol to our wallet (this is for testing).
 - Call example
@@ -348,21 +200,6 @@ airdrop_btn.onClick.AddListener(async () => {
 ### Get owned token accounts
 ```C#
 public async Task<TokenAccount[]> GetOwnedTokenAccounts(Account account)
-{
-    try
-    {
-        RequestResult<ResponseValue<TokenAccount[]>> result = await activeRpcClient.GetTokenAccountsByOwnerAsync(account.GetPublicKey, "", TokenProgram.ProgramId);
-        if (result.Result != null && result.Result.Value != null)
-        {
-            return result.Result.Value;
-        }
-    }
-    catch(Exception ex)
-    {
-        Debug.Log(ex);
-    }
-    return null;
-}
 ```
 - Returns array of tokens on the account
 - Call example 
@@ -372,10 +209,6 @@ public async Task<TokenAccount[]> GetOwnedTokenAccounts(Account account)
 ### Delete wallet and clear key
 ```C#
 public void DeleteWalletAndClearKey()
-{
-    webSocketService.UnSubscribeToWalletAccountEvents();
-    wallet = null;
-}
 ```
 - Unsubscribe from WebSocket events
 - Delete used wallet
@@ -383,11 +216,6 @@ public void DeleteWalletAndClearKey()
 ### Start WebSocket connection
 ```C#
   public void StartWebSocketConnection()
-  {
-      if (webSocketService.Socket != null) return;
-
-      webSocketService.StartConnection(GetWebsocketConnectionURL(clientSource));
-  }
 ```
 - Starts WebSocket connection when user is logged in.
 
