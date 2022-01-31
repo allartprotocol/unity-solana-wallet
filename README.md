@@ -69,22 +69,131 @@ Solnet is Solana's .NET SDK to integrate with the .NET ecosystem.  [Solnet](http
 
 ## Functionalities description
 ### Login Screen
-If you have already logged in to your wallet, then your mnemonics are stored and encrypted in memory with your password and you can log in with that password. Otherwise you have to create or restore a wallet.
+- If you have already logged in to your wallet, then your mnemonics are stored and encrypted in memory with your password and you can log in with that password. Otherwise you have to create or restore a wallet.
 
 ### Create Wallet Screen
-You now have automatically generated mnemonics and to successfully create a wallet you must enter a password with which the mnemonics will be encrypted. I recommend that you use the Save Mnemonics option and save them to a text file. Then press create button to create a wallet.
+- You now have automatically generated mnemonics and to successfully create a wallet you must enter a password with which the mnemonics will be encrypted. I recommend that you use the Save Mnemonics option and save them to a text file. Then press create button to create a wallet.
 
 ### Regenerate Wallet Screen
-If you have saved mnemonics and want to recreate a wallet with it, load them by pressing Load Mnemonics button and generate the password again. Now your wallet is regenerated and the amount of SOL and NFT will be reloaded.
+- If you have saved mnemonics and want to recreate a wallet with it, load them by pressing Load Mnemonics button and generate the password again. Now your wallet is regenerated and the amount of SOL and NFT will be reloaded.
 
 ### Wallet Screen
-After you successfully logged in / generated / regenerated a wallet you will automatically be transferred to the wallet screen. Now you are shown SOL balance and your NFT's and you are automatically subscribed to the account via the websocket. This allows you to track changes in your account (automatic refreshing of SOL balance when a balance changes, etc..).
+- After you successfully logged in / generated / regenerated a wallet you will automatically be transferred to the wallet screen. Now you are shown SOL balance and your NFT's and you are automatically subscribed to the account via the websocket. This allows you to track changes in your account (automatic refreshing of SOL balance when a balance changes, etc..).
 
 ### Recieve Screen
-To facilitate testing, there is an Airdrop option in the Recieve section. Click on the Airdrop button, return to the Wallet Screen and wait a few seconds to see the change in SOL balance.
+- To facilitate testing, there is an Airdrop option in the Recieve section. Click on the Airdrop button, return to the Wallet Screen and wait a few seconds to see the change in SOL balance.
 
 ### Transfer Screen
-To complete the transaction enter the wallet pubkey and the amount you want to send. Then return to the wallet screen and wait a few seconds for the SOL Balance to refresh.
+- To complete the transaction enter the wallet pubkey and the amount you want to send. Then return to the wallet screen and wait a few seconds for the SOL Balance to refresh.
+
+## Introduction to WalletBaseComponent.cs
+- This class is located at Packages -> Solana Wallet -> Runtime -> codebase -> WalletBaseComponent.cs
+
+## Introduction to WebsocketService.cs
+- This class is located at Packages -> Solana Wallet -> Runtime -> UnityWebSocket -> WebSocketService.cs
+### For WebSocket to work we must first create a connection calling StartConnection from WebSocketService.cs and forward address :
+```C#
+ public void StartConnection(string address)
+ {
+     _socket = new WebSocket(address);
+     _socket.OnOpen += OnOpen;
+     _socket.OnMessage += OnMessage;
+     _socket.OnClose += OnClose;
+     _socket.OnError += OnError;
+     _socket.ConnectAsync();
+ }
+```
+- In this function we create new WebSocket, then subscribe to events and open WebSocket connection.
+- Call example
+```C#
+ webSocketService.StartConnection(GetWebsocketConnectionURL(clientSource));
+```
+### To subscribe Account on WebSocket events call function SubscribeToWalletAccountEvents and forward Wallet Pub key :
+```C#
+ public void SubscribeToWalletAccountEvents(string pubKey)
+ {
+     if (_socket is null) return;
+
+     _subscriptionTypeReference = SubscriptionType.accountSubscribe;
+     SendParameter(ReturnSubscribeParameter(pubKey));
+ }
+```
+- First set subscriptionTypeReference to know which event we are processing (in this case it is accountSubscribe).
+- Then call SendParameter and forward parameter for account subscription.
+- Call example 
+```C#
+ webSocketService.SubscribeToWalletAccountEvents(wallet.Account.GetPublicKey);
+```
+### To unsubscribe Account from WebSocket events call function UnsubscribeToWalletAccountEvents :
+```C#
+ public void UnSubscribeToWalletAccountEvents()
+ {
+     if (_socket is null) return;
+     if (_subscriptionModel is null) return;
+
+     _subscriptionTypeReference = SubscriptionType.accountUnsubscribe;
+     SendParameter(ReturnUnsubscribeParameter());
+     _subscriptionModel = null;
+ }
+```
+- First set subscriptionTypeReference to know which event we are processing (in this case it is accountUnsubscribe).
+- Then call SendParameter and forward parameter for account unsubscription.
+- Call example 
+ ```C#
+ public void StartWebSocketConnection()
+ {
+     if (webSocketService.Socket != null) return;
+
+     webSocketService.StartConnection(GetWebsocketConnectionURL(clientSource));
+ }
+```
+### To respond to websocket events we use WebSocket actions that we call in OnMessage function : 
+ ```C#
+    private void OnMessage(object sender, MessageEventArgs e)
+    {
+        switch (_subscriptionTypeReference)
+        {
+            case SubscriptionType.accountSubscribe:
+                try
+                {
+                    _subscriptionModel = JsonConvert.DeserializeObject<SubscriptionModel>(e.Data);
+                    MainThreadDispatcher.Instance().Enqueue(() => { WebSocketActions.WebSocketAccountSubscriptionAction.Invoke(true); });
+                }
+                catch (Exception ex)
+                {
+                    Debug.Log(ex);
+                }
+                break;
+            case SubscriptionType.accountUnsubscribe:
+                try
+                {
+                    _unsubscriptionModel = JsonConvert.DeserializeObject<UnsubsciptionModel>(e.Data);
+                    MainThreadDispatcher.Instance().Enqueue(() => { WebSocketActions.WebSocketAccountSubscriptionAction.Invoke(false); });
+                }
+                catch (Exception ex)
+                {
+                    Debug.Log(ex);
+                }
+                break;
+        }
+    }
+```
+- Depending on the SubscriptionTypeReference, we deserialize the message into a model.
+- Invoke WebSocketAction
+- Then subscribe the desired functionality to the action
+```C#
+ WebSocketActions.WebSocketAccountSubscriptionAction += CheckSubscription;
+```
+
+### To close WebSocket connection call CloseConnection :
+```C#
+ public void CloseConnection()
+ {
+     if (_socket == null) return;
+
+     _socket.CloseAsync();
+ }
+```
 
 ## License
 
