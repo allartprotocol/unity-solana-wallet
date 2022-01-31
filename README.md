@@ -245,6 +245,23 @@ Solnet is Solana's .NET SDK to integrate with the .NET ecosystem.  [Solnet](http
   ```C#
   double sol = await SimpleWallet.instance.GetSolAmmount(SimpleWallet.instance.wallet.GetAccount(0));
  ```
+ ### Transfer sol
+ ```C#
+ public async void TransferSol(Account fromAccount, string toPublicKey, long ammount = 10000000)
+ {
+     RequestResult<ResponseValue<BlockHash>> blockHash = await activeRpcClient.GetRecentBlockHashAsync();
+
+     var transaction = new TransactionBuilder().SetRecentBlockHash(blockHash.Result.Value.Blockhash).
+         AddInstruction(SystemProgram.Transfer(fromAccount.GetPublicKey, toPublicKey, ammount)).Build(fromAccount);
+
+     RequestResult<string> firstSig = await activeRpcClient.SendTransactionAsync(Convert.ToBase64String(transaction));
+ }
+ ```
+ - Executes sol transaction from one account to another one for forwarded amount.
+ - Call example 
+ ```C#
+ TransferSol(myAccount, pubKeyToSend, ammount)
+ ```
 
 ## Introduction to WebsocketService.cs
 - This class is located at Packages -> Solana Wallet -> Runtime -> UnityWebSocket -> WebSocketService.cs
