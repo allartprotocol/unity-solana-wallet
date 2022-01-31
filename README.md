@@ -302,7 +302,47 @@ if (tryUseLocalContent)
     }
 }
 ```
+### Create address
+```C#
+public static Solnet.Wallet.PublicKey CreateAddress(List<byte[]> seed, string programId)
+```
+- Create NFT's public key from seed and programId
+- Call example
+```C#
+try
+{
+     seeds[3] = new[] { (byte)nonce };
+     publicKey = CreateAddress(seeds, programId);
+     return publicKey;
+}
+```
 
+### Find program address
+```C#
+public static Solnet.Wallet.PublicKey FindProgramAddress(string mintPublicKey, string programId = "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s")
+```
+- Returns metaplex data pubkey from mint pubkey and programId
+- Call example 
+```C#
+Solnet.Wallet.PublicKey metaplexDataPubKey = FindProgramAddress(mint);
+```
+### Get metaplex Json data
+```C#
+public static Nft TryLoadNftFromLocal(string mint)
+```
+```C#
+public static Nft TryLoadNftFromLocal(string mint)
+```
+
+### Resize
+```C#
+private static Texture2D Resize(Texture2D texture2D, int targetX, int targetY)
+```
+- Compress nft image to target height and width.
+- Call example
+```C#
+Texture2D compressedTexture = Resize(texture, 75, 75);
+```
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](https://github.com/bmresearch/Solnet/blob/master/LICENSE) file for details
