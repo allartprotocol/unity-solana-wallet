@@ -275,7 +275,7 @@ public void StartConnection(string address)
      _socket.CloseAsync();
  }
 ```
-## Nft.cs
+## Introduction to Nft.cs
 - This class is located at Packages -> Solana Wallet -> Runtime -> codebase -> nft -> Nft.cs
 ### Try get nft data
 ```C#
