@@ -65,7 +65,8 @@ Solnet is Solana's .NET SDK to integrate with the .NET ecosystem.  [Solnet](http
 6. If you use custom URI be careful to use WS/WSS instead of HTTP/HTTPS because WebSocket does not work with HTTP / HTTPS.
 7. To save mnemonics in JSON format, select the JSON storage method, and if you want to save it as a regular string, select Simple Txt.
 8. If you want to use mnemonics saved in JSON format, you must deserialize it first. You have an example in ReGenerateAccountScreen.cs in the ResolveMnemonicsByType method.
-9. Import WalletHolder prefab or if you want your design just import wallet prefab and customize the scene like we did with WalletHolder.
+9. Create new Canvas
+10. Import WalletHolder prefab into the Canvas or if you want your design just import wallet prefab and customize the scene like we did with WalletHolder.
 
 ## Functionalities description
 ### Login Screen
