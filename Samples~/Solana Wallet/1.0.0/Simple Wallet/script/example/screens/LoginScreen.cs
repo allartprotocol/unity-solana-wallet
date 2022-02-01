@@ -11,6 +11,7 @@ using System;
 
 namespace AllArt.Solana.Example
 {
+    [RequireComponent(typeof(TxtLoader))]
     public class LoginScreen : SimpleScreen
     {
         public TMP_InputField _passwordInputField;

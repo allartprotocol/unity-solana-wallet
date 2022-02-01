@@ -12,6 +12,7 @@ using UnityEngine.UI;
 
 namespace AllArt.Solana.Example
 {
+    [RequireComponent(typeof(TxtLoader))]
     public class GenerateAccountScreen : SimpleScreen
     {
         public TextMeshProUGUI mnemonic_txt;
@@ -27,7 +28,7 @@ namespace AllArt.Solana.Example
 
         void Start()
         {
-            _txtLoader = new TxtLoader();
+            _txtLoader = GetComponent<TxtLoader>();
             mnemonic_txt.text = WalletKeyPair.GenerateNewMnemonic();//"margin toast sheriff air tank liar tuna oyster cake tell trial more rebuild ostrich sick once palace uphold fall faculty clap slam job pitch";
             generate_btn.onClick.AddListener(() =>
             {

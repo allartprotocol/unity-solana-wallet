@@ -12,6 +12,7 @@ using UnityEngine.UI;
 
 namespace AllArt.Solana.Example
 {
+    [RequireComponent(typeof(TxtLoader))]
     public class ReGenerateAccountScreen : SimpleScreen
     {
         public TMP_InputField mnemonic_txt;

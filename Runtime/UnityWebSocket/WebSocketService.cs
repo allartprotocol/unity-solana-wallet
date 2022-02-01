@@ -4,7 +4,7 @@ using UnityWebSocket;
 using System;
 
 public enum SubscriptionType { NONE, accountSubscribe, accountUnsubscribe };
-public class WebSocketService : MonoBehaviour
+public class WebSocketService
 {
     public SubscriptionType _subscriptionTypeReference;
 

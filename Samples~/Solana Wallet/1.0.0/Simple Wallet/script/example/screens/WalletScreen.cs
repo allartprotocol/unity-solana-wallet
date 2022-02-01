@@ -16,6 +16,7 @@ using System;
 
 namespace AllArt.Solana.Example
 {
+    [RequireComponent(typeof(TxtLoader))]
     public class WalletScreen : SimpleScreen
     {
         public TextMeshProUGUI lamports;
@@ -39,7 +40,7 @@ namespace AllArt.Solana.Example
 
         void Start()
         {
-            _txtLoader = new TxtLoader();
+            _txtLoader = GetComponent<TxtLoader>();
             WebSocketActions.WebSocketAccountSubscriptionAction += (bool istrue) => 
             {
                 MainThreadDispatcher.Instance().Enqueue(() => { UpdateWalletBalanceDisplay(); });
@@ -71,7 +72,7 @@ namespace AllArt.Solana.Example
 
             save_private_key_btn.onClick.AddListener(() => 
             {
-                _txtLoader.SaveByteArray(_privateKeyFileTitle, SimpleWallet.instance.privateKey, false);
+                _txtLoader.SaveByteArray(_privateKeyFileTitle, Encoding.ASCII.GetBytes(SimpleWallet.instance.privateKey), false);
             });
 
             save_mnemonics_btn.onClick.AddListener(() =>
