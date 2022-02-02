@@ -18,10 +18,13 @@ namespace AllArt.Solana.Example
         Nft.Nft nft;
         SimpleScreen parentScreen;
 
-        private void Start()
+        private void Awake()
         {
             logo = GetComponentInChildren<RawImage>();
+        }
 
+        private void Start()
+        {
             transferButton.onClick.AddListener(() =>
             {
                 TransferAccount();
