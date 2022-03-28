@@ -18,6 +18,7 @@ namespace AllArt.Solana.Example
         public TMP_InputField mnemonic_txt;
         public Button generate_btn;
         public Button create_btn;
+        public Button back_btn;
         public Button load_mnemonics_btn;
         public TMP_InputField password_input_field;
         public TextMeshProUGUI wrong_password_txt;
@@ -35,15 +36,29 @@ namespace AllArt.Solana.Example
 
         void Start()
         {
-            generate_btn.onClick.AddListener(() =>
+            if(generate_btn != null)
             {
-                GenerateNewAccount();
-            });
+                generate_btn.onClick.AddListener(() =>
+                {
+                    GenerateNewAccount();
+                });
+            }
 
-            create_btn.onClick.AddListener(() =>
+            if(create_btn != null)
             {
-                manager.ShowScreen(this, "generate_screen");
-            });
+                create_btn.onClick.AddListener(() =>
+                {
+                    manager.ShowScreen(this, "generate_screen");
+                });
+            }
+
+            if(back_btn != null)
+            {
+                back_btn.onClick.AddListener(() =>
+                {
+                    manager.ShowScreen(this, "generate_screen");
+                });
+            }
 
             load_mnemonics_btn.onClick.AddListener(LoadMnemonicsFromTxtClicked);
         }

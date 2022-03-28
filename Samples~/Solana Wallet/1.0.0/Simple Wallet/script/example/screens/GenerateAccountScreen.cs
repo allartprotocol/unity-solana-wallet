@@ -19,6 +19,7 @@ namespace AllArt.Solana.Example
         public Button generate_btn;
         public Button restore_btn;
         public Button save_mnemonics_btn;
+        public Button back_btn;
         public TMP_InputField password_input_field;
         public TextMeshProUGUI need_password_txt;
 
@@ -30,20 +31,38 @@ namespace AllArt.Solana.Example
         {
             _txtLoader = GetComponent<TxtLoader>();
             mnemonic_txt.text = WalletKeyPair.GenerateNewMnemonic();//"margin toast sheriff air tank liar tuna oyster cake tell trial more rebuild ostrich sick once palace uphold fall faculty clap slam job pitch";
-            generate_btn.onClick.AddListener(() =>
-            {
-                MainThreadDispatcher.Instance().Enqueue(() => { GenerateNewAccount(); });
-            });
 
-            restore_btn.onClick.AddListener(() =>
+            if(generate_btn != null)
             {
-                manager.ShowScreen(this, "re-generate_screen");
-            });
+                generate_btn.onClick.AddListener(() =>
+                {
+                    MainThreadDispatcher.Instance().Enqueue(() => { GenerateNewAccount(); });
+                });
+            }
 
-            save_mnemonics_btn.onClick.AddListener(() =>
+            if(restore_btn != null)
             {
-                _txtLoader.SaveTxt(_mnemonicsFileTitle, mnemonic_txt.text, false);
-            });
+                restore_btn.onClick.AddListener(() =>
+                {
+                    manager.ShowScreen(this, "re-generate_screen");
+                });
+            }
+
+            if(save_mnemonics_btn != null)
+            {
+                save_mnemonics_btn.onClick.AddListener(() =>
+                {
+                    _txtLoader.SaveTxt(_mnemonicsFileTitle, mnemonic_txt.text, false);
+                });
+            }
+
+            if(back_btn != null)
+            {
+                back_btn.onClick.AddListener(() =>
+                {
+                    manager.ShowScreen(this, "login_screen");
+                });
+            }
 
             _txtLoader.TxtSavedAction += SaveMnemonicsToTxtFile;
         }

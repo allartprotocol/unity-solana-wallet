@@ -49,29 +49,39 @@ namespace AllArt.Solana.Example
 
             SwitchButtons("Login");
 
-            _loginToWalletBtn.onClick.AddListener(() =>
+            if(_loginToWalletBtn != null)
             {
-                SwitchPanels(1);
-            });
+                _loginToWalletBtn.onClick.AddListener(() =>
+                {
+                    SwitchPanels(1);
+                });
+            }
+ 
+            if(_backBtn != null)
+            {
+                _backBtn.onClick.AddListener(() =>
+                {
+                    SwitchPanels(0);
+                });
+            }
 
-            _backBtn.onClick.AddListener(() => 
+            if(_createNewWalletBtn != null)
             {
-                SwitchPanels(0);
-            });
-
-            _createNewWalletBtn.onClick.AddListener(() =>
-            {
-                SimpleWallet.instance.DeleteWalletAndClearKey();
-                manager.ShowScreen(this, "generate_screen");
-                SwitchPanels(0);
-            });
+                _createNewWalletBtn.onClick.AddListener(() =>
+                {
+                    SimpleWallet.instance.DeleteWalletAndClearKey();
+                    manager.ShowScreen(this, "generate_screen");
+                    SwitchPanels(0);
+                });
+            }
 
             _passwordInputField.onSubmit.AddListener(delegate { LoginChecker(); });
 
             _loginBtn.onClick.AddListener(LoginChecker);
             _tryAgainBtn.onClick.AddListener(() => { SwitchButtons("Login"); });  
 
-            _messageTxt.gameObject.SetActive(false);
+            if(_messageTxt != null)
+                _messageTxt.gameObject.SetActive(false);
         }
 
         private void LoginChecker()
