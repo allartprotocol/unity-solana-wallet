@@ -41,17 +41,19 @@ namespace AllArt.Solana.Nft
         public int share;
     }
 
+    [System.Serializable]
     public class File
     {
-        public string uri { get; set; }
-        public string type { get; set; }
+        public string uri;
+        public string type;
     }
 
+    [System.Serializable]
     public class Properties
     {
-        public List<File> files { get; set; }
-        public string category { get; set; }
-        public List<CreatorData> creators { get; set; }
+        public File[] files;
+        public string category;
+        public CreatorData[] creators;
     }
 
     [System.Serializable]
