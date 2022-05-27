@@ -1,5 +1,6 @@
 using AllArt.Solana.Utility;
 using dotnetstandard_bip39;
+using Merkator.BitCoin;
 using Solnet.Programs;
 using Solnet.Rpc;
 using Solnet.Rpc.Builders;
@@ -9,6 +10,7 @@ using Solnet.Rpc.Models;
 using Solnet.Wallet;
 using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
@@ -437,6 +439,47 @@ namespace AllArt.Solana
             return await activeRpcClient.SendTransactionAsync(Convert.ToBase64String(transaction));
         }
 
+        public async Task<byte[]> TransferTokenForPhantom(string sourceTokenAccount, string toWalletAccount, string pubKey, string tokenMint, long ammount = 1)
+        {
+            RequestResult<ResponseValue<BlockHash>> blockHash = await activeRpcClient.GetRecentBlockHashAsync();
+            RequestResult<ulong> rentExemptionAmmount = await activeRpcClient.GetMinimumBalanceForRentExemptionAsync(SystemProgram.AccountDataSize);
+            TokenAccount[] lortAccounts = await GetOwnedTokenAccounts(toWalletAccount, tokenMint, "");
+            byte[] transaction;
+            if (lortAccounts != null && lortAccounts.Length > 0)
+            {
+                transaction = new TransactionBuilder().SetRecentBlockHash(blockHash.Result.Value.Blockhash).
+                    AddInstruction(TokenProgram.Transfer(sourceTokenAccount,
+                    lortAccounts[0].pubkey,
+                    ammount,
+                    pubKey))
+                    .Serialize();
+            }
+            else
+            {
+                Keypair newAccKeypair = WalletKeyPair.GenerateKeyPairFromMnemonic(WalletKeyPair.GenerateNewMnemonic());
+                transaction = new TransactionBuilder().SetRecentBlockHash(blockHash.Result.Value.Blockhash).
+                    AddInstruction(
+                    SystemProgram.CreateAccount(
+                        pubKey,
+                        newAccKeypair.publicKey,
+                        (long)rentExemptionAmmount.Result,
+                        SystemProgram.AccountDataSize,
+                        TokenProgram.ProgramId)).
+                    AddInstruction(
+                    TokenProgram.InitializeAccount(
+                        newAccKeypair.publicKey,
+                        tokenMint,
+                        toWalletAccount)).
+                    AddInstruction(TokenProgram.Transfer(sourceTokenAccount,
+                        newAccKeypair.publicKey,
+                        ammount,
+                        pubKey))
+                    .Serialize();
+            }
+            return transaction;
+            //return await activeRpcClient.SendTransactionAsync(Convert.ToBase64String(transaction));
+        }
+
         /// <summary>
         /// The key of the account on which we want to execute the transaction
         /// </summary>
@@ -476,6 +519,25 @@ namespace AllArt.Solana
             try
             {
                 RequestResult<ResponseValue<TokenAccount[]>> result = await activeRpcClient.GetTokenAccountsByOwnerAsync(account.GetPublicKey, "", TokenProgram.ProgramId);
+                if (result.Result != null && result.Result.Value != null)
+                {
+                    return result.Result.Value;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.Log(ex);
+            }
+            return null;
+        }
+
+        public async Task<TokenAccount[]> GetOwnedTokenAccountsByPublicKey(string pubKey)
+        {
+            try
+            {
+                byte[] bytes = Encoding.ASCII.GetBytes(pubKey);
+                string publicKey = Base58Encoding.Encode(bytes);
+                RequestResult<ResponseValue<TokenAccount[]>> result = await activeRpcClient.GetTokenAccountsByOwnerAsync(publicKey, "", TokenProgram.ProgramId);
                 if (result.Result != null && result.Result.Value != null)
                 {
                     return result.Result.Value;
