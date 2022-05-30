@@ -435,48 +435,70 @@ namespace AllArt.Solana
                         newAccKeypair.publicKeyByte)
                     });
             }
-
             return await activeRpcClient.SendTransactionAsync(Convert.ToBase64String(transaction));
         }
 
-        public async Task<byte[]> TransferTokenForPhantom(string sourceTokenAccount, string toWalletAccount, string pubKey, string tokenMint, long ammount = 1)
+        public async Task<List<TransactionInstruction>> TransferTokenForPhantom(string sourceTokenAccount, string toWalletAccount, string pubKey, string tokenMint, long ammount = 1)
         {
-            RequestResult<ResponseValue<BlockHash>> blockHash = await activeRpcClient.GetRecentBlockHashAsync();
-            RequestResult<ulong> rentExemptionAmmount = await activeRpcClient.GetMinimumBalanceForRentExemptionAsync(SystemProgram.AccountDataSize);
-            TokenAccount[] lortAccounts = await GetOwnedTokenAccounts(toWalletAccount, tokenMint, "");
-            byte[] transaction;
-            if (lortAccounts != null && lortAccounts.Length > 0)
-            {
-                transaction = new TransactionBuilder().SetRecentBlockHash(blockHash.Result.Value.Blockhash).
-                    AddInstruction(TokenProgram.Transfer(sourceTokenAccount,
-                    lortAccounts[0].pubkey,
-                    ammount,
-                    pubKey))
-                    .Serialize();
-            }
-            else
-            {
-                Keypair newAccKeypair = WalletKeyPair.GenerateKeyPairFromMnemonic(WalletKeyPair.GenerateNewMnemonic());
-                transaction = new TransactionBuilder().SetRecentBlockHash(blockHash.Result.Value.Blockhash).
-                    AddInstruction(
-                    SystemProgram.CreateAccount(
+            var createAccount = SystemProgram.CreateAccount(
                         pubKey,
-                        newAccKeypair.publicKey,
-                        (long)rentExemptionAmmount.Result,
-                        SystemProgram.AccountDataSize,
-                        TokenProgram.ProgramId)).
-                    AddInstruction(
-                    TokenProgram.InitializeAccount(
-                        newAccKeypair.publicKey,
-                        tokenMint,
-                        toWalletAccount)).
-                    AddInstruction(TokenProgram.Transfer(sourceTokenAccount,
-                        newAccKeypair.publicKey,
+                        toWalletAccount,
                         ammount,
-                        pubKey))
-                    .Serialize();
-            }
-            return transaction;
+                        SystemProgram.AccountDataSize,
+                        TokenProgram.ProgramId);
+
+            var initializeAccount = TokenProgram.InitializeAccount(
+                        sourceTokenAccount,
+                        tokenMint,
+                        toWalletAccount);
+
+            var transfer = TokenProgram.Transfer(sourceTokenAccount,
+                        toWalletAccount,
+                        ammount,
+                        pubKey);
+
+            List<TransactionInstruction> newList = new List<TransactionInstruction>();
+            newList.Add(createAccount);
+            newList.Add(initializeAccount);
+            newList.Add(transfer);
+
+            return newList;
+            //RequestResult<ResponseValue<BlockHash>> blockHash = await activeRpcClient.GetRecentBlockHashAsync();
+            //RequestResult<ulong> rentExemptionAmmount = await activeRpcClient.GetMinimumBalanceForRentExemptionAsync(SystemProgram.AccountDataSize);
+            //TokenAccount[] lortAccounts = await GetOwnedTokenAccounts(toWalletAccount, tokenMint, "");
+            //byte[] transaction;
+            //if (lortAccounts != null && lortAccounts.Length > 0)
+            //{
+            //    transaction = new TransactionBuilder().SetRecentBlockHash(blockHash.Result.Value.Blockhash).
+            //        AddInstruction(TokenProgram.Transfer(sourceTokenAccount,
+            //        lortAccounts[0].pubkey,
+            //        ammount,
+            //        pubKey))
+            //        .Serialize();
+            //}
+            //else
+            //{
+            //    Keypair newAccKeypair = WalletKeyPair.GenerateKeyPairFromMnemonic(WalletKeyPair.GenerateNewMnemonic());
+            //    transaction = new TransactionBuilder().SetRecentBlockHash(blockHash.Result.Value.Blockhash).
+            //        AddInstruction(
+            //        SystemProgram.CreateAccount(
+            //            pubKey,
+            //            newAccKeypair.publicKey,
+            //            (long)rentExemptionAmmount.Result,
+            //            SystemProgram.AccountDataSize,
+            //            TokenProgram.ProgramId)).
+            //        AddInstruction(
+            //        TokenProgram.InitializeAccount(
+            //            newAccKeypair.publicKey,
+            //            tokenMint,
+            //            toWalletAccount)).
+            //        AddInstruction(TokenProgram.Transfer(sourceTokenAccount,
+            //            newAccKeypair.publicKey,
+            //            ammount,
+            //            pubKey))
+            //        .Serialize();
+            //}
+            //return Convert.ToBase64String(transaction);
             //return await activeRpcClient.SendTransactionAsync(Convert.ToBase64String(transaction));
         }
 
