@@ -49,7 +49,12 @@ namespace Solnet.Programs
         {
             return Transfer(Base58Encoding.Decode(fromPublicKey), Base58Encoding.Decode(toPublicKey), lamports);
         }
-        
+
+        public static TransactionInstructionForJS TransferForJS(string fromPublicKey, string toPublicKey, long lamports)
+        {
+            return TransferForJS(Base58Encoding.Decode(fromPublicKey), Base58Encoding.Decode(toPublicKey), lamports);
+        }
+
         /// <summary>
         /// Initialize a transaction to transfer lamports.
         /// </summary>
@@ -76,7 +81,27 @@ namespace Solnet.Programs
                 Data = data
             };
         }
-        
+
+        public static TransactionInstructionForJS TransferForJS(byte[] fromPublicKey, byte[] toPublicKey, long lamports)
+        {
+            var keys = new List<AccountMeta>
+            {
+                new AccountMeta(fromPublicKey, true, true),
+                new AccountMeta(toPublicKey, false, true)
+            };
+            var data = new byte[12];
+
+            Utils.Uint32ToByteArrayLe(ProgramIndexTransfer, data, 0);
+            Utils.Int64ToByteArrayLe(lamports, data, 4);
+
+            return new TransactionInstructionForJS
+            {
+                programId = Base58Encoding.Decode(ProgramId),
+                keys = keys,
+                data = data
+            };
+        }
+
         /// <summary>
         /// Initialize a new transaction instruction which interacts with the System Program to create a new account.
         /// </summary>
@@ -91,6 +116,19 @@ namespace Solnet.Programs
             long space, string programId)
         {
             return CreateAccount(
+                Base58Encoding.Decode(fromPublicKey),
+                Base58Encoding.Decode(newAccountPublicKey),
+                lamports,
+                space,
+                Base58Encoding.Decode(programId)
+                );
+        }
+
+        public static TransactionInstructionForJS CreateAccountForJS(
+            string fromPublicKey, string newAccountPublicKey, long lamports,
+            long space, string programId)
+        {
+            return CreateAccountForJS(
                 Base58Encoding.Decode(fromPublicKey),
                 Base58Encoding.Decode(newAccountPublicKey),
                 lamports,
@@ -132,7 +170,29 @@ namespace Solnet.Programs
             };
         }
 
-        
 
+        public static TransactionInstructionForJS CreateAccountForJS(
+            byte[] fromPublicKey, byte[] newAccountPublicKey, long lamports,
+            long space, byte[] programId)
+        {
+            var keys = new List<AccountMeta>
+            {
+                new AccountMeta(fromPublicKey, true, true),
+                new AccountMeta(newAccountPublicKey, true, true)
+            };
+            var data = new byte[52];
+
+            Utils.Uint32ToByteArrayLe(ProgramIndexCreateAccount, data, 0);
+            Utils.Int64ToByteArrayLe(lamports, data, 4);
+            Utils.Int64ToByteArrayLe(space, data, 12);
+            Array.Copy(programId, 0, data, 20, 32);
+
+            return new TransactionInstructionForJS
+            {
+                programId = Base58Encoding.Decode(ProgramId),
+                keys = keys,
+                data = data
+            };
+        }
     }
 }

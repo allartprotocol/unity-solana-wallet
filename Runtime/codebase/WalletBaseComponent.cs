@@ -438,26 +438,26 @@ namespace AllArt.Solana
             return await activeRpcClient.SendTransactionAsync(Convert.ToBase64String(transaction));
         }
 
-        public async Task<List<TransactionInstruction>> TransferTokenForPhantom(string sourceTokenAccount, string toWalletAccount, string pubKey, string tokenMint, long ammount = 1)
+        public async Task<List<TransactionInstructionForJS>> TransferTokenForPhantom(string sourceTokenAccount, string toWalletAccount, string pubKey, string tokenMint, long ammount = 1)
         {
-            var createAccount = SystemProgram.CreateAccount(
+            var createAccount = SystemProgram.CreateAccountForJS(
                         pubKey,
                         toWalletAccount,
                         ammount,
                         SystemProgram.AccountDataSize,
                         TokenProgram.ProgramId);
 
-            var initializeAccount = TokenProgram.InitializeAccount(
+            var initializeAccount = TokenProgram.InitializeAccountForJS(
                         sourceTokenAccount,
                         tokenMint,
                         toWalletAccount);
 
-            var transfer = TokenProgram.Transfer(sourceTokenAccount,
+            var transfer = TokenProgram.TransferForJS(sourceTokenAccount,
                         toWalletAccount,
                         ammount,
                         pubKey);
 
-            List<TransactionInstruction> newList = new List<TransactionInstruction>();
+            List<TransactionInstructionForJS> newList = new List<TransactionInstructionForJS>();
             newList.Add(createAccount);
             newList.Add(initializeAccount);
             newList.Add(transfer);

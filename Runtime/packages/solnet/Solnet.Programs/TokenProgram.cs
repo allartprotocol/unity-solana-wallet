@@ -43,6 +43,12 @@ namespace Solnet.Programs
             return Transfer(Base58Encoding.Decode(source), Base58Encoding.Decode(destination), amount, Base58Encoding.Decode(owner));
         }
 
+        public static TransactionInstructionForJS TransferForJS(
+           string source, string destination, long amount, string owner)
+        {
+            return TransferForJS(Base58Encoding.Decode(source), Base58Encoding.Decode(destination), amount, Base58Encoding.Decode(owner));
+        }
+
         /// <summary>
         /// Transfers tokens from one account to another either directly or via a delegate.
         /// If this account is associated with the native mint then equal amounts of SOL and Tokens will be transferred to the destination account.
@@ -69,6 +75,26 @@ namespace Solnet.Programs
                 ProgramId = Base58Encoding.Decode(ProgramId),
                 Keys = keys,
                 Data = transactionData
+            };
+        }
+
+        public static TransactionInstructionForJS TransferForJS(
+           byte[] source, byte[] destination, long amount, byte[] owner)
+        {
+            var keys = new List<AccountMeta>
+            {
+                new AccountMeta(source, false, true),
+                new AccountMeta(destination, false, true),
+                new AccountMeta(owner, true, false)
+            };
+
+            var transactionData = EncodeTransferData(amount);
+
+            return new TransactionInstructionForJS
+            {
+                programId = Base58Encoding.Decode(ProgramId),
+                keys = keys,
+                data = transactionData
             };
         }
 
@@ -164,6 +190,14 @@ namespace Solnet.Programs
                 Base58Encoding.Decode(owner));
         }
 
+        public static TransactionInstructionForJS InitializeAccountForJS(string account, string mint, string owner)
+        {
+            return InitializeAccountForJS(
+                Base58Encoding.Decode(account),
+                Base58Encoding.Decode(mint),
+                Base58Encoding.Decode(owner));
+        }
+
         /// <summary>
         /// <para>Initializes a new account to hold tokens.
         /// If this account is associated with the native mint then the token balance of the initialized account will be equal to the amount of SOL in the account.
@@ -195,6 +229,24 @@ namespace Solnet.Programs
                 ProgramId = Base58Encoding.Decode(ProgramId),
                 Keys = keys,
                 Data = EncodeInitializeAccountData()
+            };
+        }
+
+        public static TransactionInstructionForJS InitializeAccountForJS(byte[] account, byte[] mint, byte[] owner)
+        {
+            var keys = new List<AccountMeta>
+            {
+                new AccountMeta(account, false, true),
+                new AccountMeta(mint, false, false),
+                new AccountMeta(owner, false, false),
+                new AccountMeta(Base58Encoding.Decode(SysvarRentPublicKey), false, false)
+            };
+
+            return new TransactionInstructionForJS()
+            {
+                programId = Base58Encoding.Decode(ProgramId),
+                keys = keys,
+                data = EncodeInitializeAccountData()
             };
         }
 
