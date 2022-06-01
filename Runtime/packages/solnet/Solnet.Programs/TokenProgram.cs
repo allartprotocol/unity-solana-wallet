@@ -81,11 +81,11 @@ namespace Solnet.Programs
         public static TransactionInstructionForJS TransferForJS(
            byte[] source, byte[] destination, long amount, byte[] owner)
         {
-            var keys = new List<AccountMeta>
+            var keys = new List<AccountMetaForJS>
             {
-                new AccountMeta(source, false, true),
-                new AccountMeta(destination, false, true),
-                new AccountMeta(owner, true, false)
+                new AccountMetaForJS(source, false, true),
+                new AccountMetaForJS(destination, false, true),
+                new AccountMetaForJS(owner, true, false)
             };
 
             var transactionData = EncodeTransferData(amount);
@@ -234,12 +234,12 @@ namespace Solnet.Programs
 
         public static TransactionInstructionForJS InitializeAccountForJS(byte[] account, byte[] mint, byte[] owner)
         {
-            var keys = new List<AccountMeta>
+            var keys = new List<AccountMetaForJS>
             {
-                new AccountMeta(account, false, true),
-                new AccountMeta(mint, false, false),
-                new AccountMeta(owner, false, false),
-                new AccountMeta(Base58Encoding.Decode(SysvarRentPublicKey), false, false)
+                new AccountMetaForJS(account, false, true),
+                new AccountMetaForJS(mint, false, false),
+                new AccountMetaForJS(owner, false, false),
+                new AccountMetaForJS(Base58Encoding.Decode(SysvarRentPublicKey), false, false)
             };
 
             return new TransactionInstructionForJS()

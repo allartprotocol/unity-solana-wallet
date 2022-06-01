@@ -463,43 +463,6 @@ namespace AllArt.Solana
             newList.Add(transfer);
 
             return newList;
-            //RequestResult<ResponseValue<BlockHash>> blockHash = await activeRpcClient.GetRecentBlockHashAsync();
-            //RequestResult<ulong> rentExemptionAmmount = await activeRpcClient.GetMinimumBalanceForRentExemptionAsync(SystemProgram.AccountDataSize);
-            //TokenAccount[] lortAccounts = await GetOwnedTokenAccounts(toWalletAccount, tokenMint, "");
-            //byte[] transaction;
-            //if (lortAccounts != null && lortAccounts.Length > 0)
-            //{
-            //    transaction = new TransactionBuilder().SetRecentBlockHash(blockHash.Result.Value.Blockhash).
-            //        AddInstruction(TokenProgram.Transfer(sourceTokenAccount,
-            //        lortAccounts[0].pubkey,
-            //        ammount,
-            //        pubKey))
-            //        .Serialize();
-            //}
-            //else
-            //{
-            //    Keypair newAccKeypair = WalletKeyPair.GenerateKeyPairFromMnemonic(WalletKeyPair.GenerateNewMnemonic());
-            //    transaction = new TransactionBuilder().SetRecentBlockHash(blockHash.Result.Value.Blockhash).
-            //        AddInstruction(
-            //        SystemProgram.CreateAccount(
-            //            pubKey,
-            //            newAccKeypair.publicKey,
-            //            (long)rentExemptionAmmount.Result,
-            //            SystemProgram.AccountDataSize,
-            //            TokenProgram.ProgramId)).
-            //        AddInstruction(
-            //        TokenProgram.InitializeAccount(
-            //            newAccKeypair.publicKey,
-            //            tokenMint,
-            //            toWalletAccount)).
-            //        AddInstruction(TokenProgram.Transfer(sourceTokenAccount,
-            //            newAccKeypair.publicKey,
-            //            ammount,
-            //            pubKey))
-            //        .Serialize();
-            //}
-            //return Convert.ToBase64String(transaction);
-            //return await activeRpcClient.SendTransactionAsync(Convert.ToBase64String(transaction));
         }
 
         /// <summary>

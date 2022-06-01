@@ -42,8 +42,7 @@ namespace Solnet.Rpc.Models
             Signer = isSigner;
             Writable = isWritable;
         }
-        
-        
+
         /// <summary>
         /// Get the public key encoded as base58.
         /// </summary>
@@ -68,6 +67,74 @@ namespace Solnet.Rpc.Models
         {
             var cmpSigner = am1.Signer == am2.Signer ? 0 : am1.Signer ? -1 : 1;
             if (cmpSigner != 0) {
+                return cmpSigner;
+            }
+
+            var cmpWritable = am1.Writable == am2.Writable ? 0 : am1.Writable ? -1 : 1;
+            return cmpWritable != 0 ? cmpWritable : 0;
+        }
+    }
+
+    public class AccountMetaForJS
+    {
+        /// <summary>
+        /// The base58 encoder instance.
+        /// </summary>
+        //private static readonly Base58Encoder Encoder = new Base58Encoder();
+
+        /// <summary>
+        /// The public key.
+        /// </summary>
+        public byte[] pubkey;
+
+        /// <summary>
+        /// A boolean which defines if the account is a signer account.
+        /// </summary>
+        public bool isSigner;
+
+        /// <summary>
+        /// A boolean which defines if the account is a writable account.
+        /// </summary>
+        public bool isWritable;
+
+        /// <summary>
+        /// Initialize the account meta with the passed public key, and booleans defining if it is a signer and/or writable account.
+        /// </summary>
+        /// <param name="publicKey">The account's public key.</param>
+        /// <param name="isSigner">If the account is a signer.</param>
+        /// <param name="isWritable">If the account is writable.</param>
+        public AccountMetaForJS(byte[] publicKey, bool isSigner, bool isWritable)
+        {
+            this.pubkey = publicKey;
+            this.isSigner = isSigner;
+            this.isWritable = isWritable;
+        }
+
+        /// <summary>
+        /// Get the public key encoded as base58.
+        /// </summary>
+        //public string GetPublicKey => Base58Encoding.Encode(pubkey);
+    }
+
+    /// <summary>
+    /// Implements extensions to <see cref="AccountMeta"/>.
+    /// </summary>
+    internal static class AccountMetaExtensionsForJS
+    {
+        /// <summary>
+        /// Compares two <see cref="AccountMetaForJS"/> objects.
+        /// </summary>
+        /// <param name="am1">The base of the comparison.</param>
+        /// <param name="am2">The object to compare the base to.</param>
+        /// <returns>
+        /// Returns 0 if the objects are equal in terms of Signing and Writing,
+        /// -1 if the base of the comparison is something the other is not, otherwise 1.
+        /// </returns>
+        internal static int Compare(AccountMeta am1, AccountMeta am2)
+        {
+            var cmpSigner = am1.Signer == am2.Signer ? 0 : am1.Signer ? -1 : 1;
+            if (cmpSigner != 0)
+            {
                 return cmpSigner;
             }
 

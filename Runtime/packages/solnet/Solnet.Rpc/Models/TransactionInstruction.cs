@@ -31,16 +31,16 @@ namespace Solnet.Rpc.Models
         /// <summary>
         /// The program ID associated with the instruction.
         /// </summary>
-        public byte[] programId { get; set; }
+        public byte[] programId;
 
         /// <summary>
         /// The keys associated with the instruction.
         /// </summary>
-        public IList<AccountMeta> keys { get; set; }
+        public List<AccountMetaForJS> keys;
 
         /// <summary>
         /// The instruction-specific data.
         /// </summary>
-        public byte[] data { get; set; }
+        public byte[] data;
     }
 }

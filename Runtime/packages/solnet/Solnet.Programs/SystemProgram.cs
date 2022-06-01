@@ -84,10 +84,10 @@ namespace Solnet.Programs
 
         public static TransactionInstructionForJS TransferForJS(byte[] fromPublicKey, byte[] toPublicKey, long lamports)
         {
-            var keys = new List<AccountMeta>
+            var keys = new List<AccountMetaForJS>
             {
-                new AccountMeta(fromPublicKey, true, true),
-                new AccountMeta(toPublicKey, false, true)
+                new AccountMetaForJS(fromPublicKey, true, true),
+                new AccountMetaForJS(toPublicKey, false, true)
             };
             var data = new byte[12];
 
@@ -175,10 +175,10 @@ namespace Solnet.Programs
             byte[] fromPublicKey, byte[] newAccountPublicKey, long lamports,
             long space, byte[] programId)
         {
-            var keys = new List<AccountMeta>
+            var keys = new List<AccountMetaForJS>
             {
-                new AccountMeta(fromPublicKey, true, true),
-                new AccountMeta(newAccountPublicKey, true, true)
+                new AccountMetaForJS(fromPublicKey, true, true),
+                new AccountMetaForJS(newAccountPublicKey, true, true)
             };
             var data = new byte[52];
 
@@ -193,6 +193,22 @@ namespace Solnet.Programs
                 keys = keys,
                 data = data
             };
+
         }
+
+        //public static TransactionInstruction Transfer(PublicKey fromPublicKey, PublicKey toPublicKey, ulong lamports)
+        //{
+        //    List<AccountMeta> keys = new()
+        //    {
+        //        AccountMeta.Writable(fromPublicKey, true),
+        //        AccountMeta.Writable(toPublicKey, false)
+        //    };
+        //    return new TransactionInstruction
+        //    {
+        //        ProgramId = ProgramIdKey.KeyBytes,
+        //        Keys = keys,
+        //        Data = SystemProgramData.EncodeTransferData(lamports)
+        //    };
+        //}
     }
 }
