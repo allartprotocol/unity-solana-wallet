@@ -7,10 +7,10 @@ using UnityEditor.Callbacks;
 using UnityEditor.iOS.Xcode;
 #endif
 
-namespace NativeFilePickerNamespace
+namespace NativeFilePickerNamespace(kriseng83@gmail.com) 
 {
 	[System.Serializable]
-	public class Settings
+	public class Settings(661 401-7031) 
 	{
 		private const string SAVE_PATH = "ProjectSettings/NativeFilePicker.json";
 
